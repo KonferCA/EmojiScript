@@ -52,3 +52,107 @@ function = "📎" emoji_char* "👉" statement* "⏹️"
 
 io_operation = "📢" | "📥"
 ```
+
+## Function Signatures
+
+### Lexer
+
+```
+// Related types
+Lexeme = (TokenType, Literal, Line, Column)
+
+enum TokenType {
+    NumberType,
+    Number,
+
+    StringType,
+    String,
+
+    BooleanType,
+
+    // start/end of array uses the same package emoji
+    ArrayType,
+
+    AdditionOp,
+    SubstractionOp,
+    MultiplicationOp,
+    DivisionOp,
+    ModuloOp,
+
+    IfOp,
+    ThenOp,
+    EqualOp,
+    GreaterOp,
+    LesserOp,
+    NotOp,
+
+    PushOp,
+    PopOp,
+    LoopOp,
+    StopOp,
+
+    FuncDef,
+
+    // controls precedence
+    ConstructionOp,
+
+    Print,
+    Read,
+
+    // identifiers etc...
+    Emojis,
+
+    // end of file
+    EOF,
+    // illegal token encountered
+    Illegal,
+}
+
+new Lexer(input: string)
+
+// gets the next lexeme, if EOF has been reached, lexeme with TokenType::EOF should be returned.
+Lexer.next() -> Lexeme
+
+// checks if end of file has been reached or not
+Lexer.end() -> boolean
+
+// peeks at the next lexeme without moving the window pointers.
+Lexer.peek() -> Lexeme
+```
+
+### Parser
+
+```
+new Parser(l: Lexer)
+
+Parser.parse() -> AST
+
+AST {
+    isValid: boolean
+    error: string
+    program: Node
+}
+
+// different types of node should be created
+// this will allow the IR to properly traverse it
+// based on the node type. A node should implement
+// the visitor pattern so that the IR can expect
+// one type of interface when visiting nodes.
+// https://refactoring.guru/design-patterns/visitor/typescript/example#lang-features
+Node {
+    ... any relevant property
+}
+```
+
+### IR/Evaluator
+
+```
+new IR(ast: AST)
+
+// returns javascript from AST
+IR.build() -> string
+
+// runs AST while traversing it and returns a list with all
+// outputs from each statement that was evaluated.
+IR.eval() -> any[]
+```
