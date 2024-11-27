@@ -7,6 +7,16 @@
         "module": "ESNext",
         "skipLibCheck": true,
 
+        "paths": {
+            "@": ["./src/*"],
+            "@components": ["./src/components/index"],
+            "@hooks": ["./src/hooks/index"],
+            "@pages": ["./src/pages/index"],
+            "@utils": ["./src/utils/index"],
+            "@assets": ["./src/assets/index"],
+            "@t": ["./src/types/index"]
+        },
+
         /* Bundler mode */
         "moduleResolution": "bundler",
         "allowImportingTsExtensions": true,
