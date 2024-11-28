@@ -19,7 +19,9 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitStringLiteral(node: Nodes.StringLiteralNode): string {
-        return "";
+        // all literal strings should be emojis so there is no need
+        // to handle nested single/double quotes.
+        return `"${node.value}"`;
     }
 
     visitBooleanLiteral(node: Nodes.BooleanLiteralNode): string {
