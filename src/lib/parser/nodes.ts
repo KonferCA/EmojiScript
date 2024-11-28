@@ -25,8 +25,8 @@ export class ProgramNode implements Types.ProgramNode {
         return visitor.visitProgram(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugProgram(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugProgram(this);
     }
 }
 
@@ -40,8 +40,8 @@ export class NumberLiteralNode implements Types.NumberLiteralNode {
         return visitor.visitNumberLiteral(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugNumberLiteral(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugNumberLiteral(this);
     }
 }
 
@@ -55,8 +55,8 @@ export class StringLiteralNode implements Types.StringLiteralNode {
         return visitor.visitStringLiteral(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugStringLiteral(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugStringLiteral(this);
     }
 }
 
@@ -70,8 +70,8 @@ export class BooleanLiteralNode implements Types.BooleanLiteralNode {
         return visitor.visitBooleanLiteral(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugBooleanLiteral(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugBooleanLiteral(this);
     }
 }
 
@@ -85,8 +85,8 @@ export class ArrayLiteralNode implements Types.ArrayLiteralNode {
         return visitor.visitArrayLiteral(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugArrayLiteral(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugArrayLiteral(this);
     }
 }
 
@@ -101,8 +101,8 @@ export class VariableDeclarationNode implements Types.VariableDeclarationNode {
         return visitor.visitVariableDeclaration(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugVariableDeclaration(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugVariableDeclaration(this);
     }
 }
 
@@ -116,8 +116,8 @@ export class IdentifierNode implements Types.IdentifierNode {
         return visitor.visitIdentifier(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugIdentifier(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugIdentifier(this);
     }
 }
 
@@ -131,8 +131,8 @@ export class MathOperationNode implements Types.MathOperationNode {
         return visitor.visitMathOperation(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugMathOperation(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugMathOperation(this);
     }
 }
 
@@ -146,8 +146,8 @@ export class ComparisonOperationNode implements Types.ComparisonOperationNode {
         return visitor.visitComparisonOperation(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugComparisonOperation(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugComparisonOperation(this);
     }
 }
 
@@ -161,8 +161,8 @@ export class StackOperationNode implements Types.StackOperationNode {
         return visitor.visitStackOperation(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugStackOperation(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugStackOperation(this);
     }
 }
 
@@ -178,8 +178,8 @@ export class IfStatementNode implements Types.IfStatementNode {
         return visitor.visitIfStatement(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugIfStatement(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugIfStatement(this);
     }
 }
 
@@ -197,8 +197,8 @@ export class ComparisonExpressionNode
         return visitor.visitComparisonExpression(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugComparisonExpression(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugComparisonExpression(this);
     }
 }
 
@@ -212,8 +212,8 @@ export class LoopStatementNode implements Types.LoopStatementNode {
         return visitor.visitLoopStatement(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugLoopStatement(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugLoopStatement(this);
     }
 }
 
@@ -227,8 +227,8 @@ export class FunctionDefinitionNode implements Types.FunctionDefinitionNode {
         return visitor.visitFunctionDefinition(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugFunctionDefinition(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugFunctionDefinition(this);
     }
 }
 
@@ -242,8 +242,8 @@ export class IOOperationNode implements Types.IOOperationNode {
         return visitor.visitIOOperation(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugIOOperation(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugIOOperation(this);
     }
 }
 
@@ -258,7 +258,7 @@ export class IndexExpressionNode implements Types.IndexExpressionNode {
         return visitor.visitIndexExpression(this);
     }
 
-    debug(visitor: NodeVisitor, indent: string): string {
-        return visitor.debugIndexExpression(this, indent);
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugIndexExpression(this);
     }
 }

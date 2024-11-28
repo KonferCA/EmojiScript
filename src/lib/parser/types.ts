@@ -15,7 +15,7 @@ import type {
 
 export interface Node {
     accept(visitor: NodeVisitor): string;
-    debug(visitor: NodeVisitor, indent: string): string;
+    debug(visitor: NodeVisitor): string;
 }
 
 export interface NodeVisitor {
@@ -37,34 +37,22 @@ export interface NodeVisitor {
     visitComparisonExpression(node: ComparisonExpressionNode): string;
 
     // DEBUGGING
-    debugProgram(node: ProgramNode, indent: string): string;
-    debugNumberLiteral(node: NumberLiteralNode, indent: string): string;
-    debugStringLiteral(node: StringLiteralNode, indent: string): string;
-    debugBooleanLiteral(node: BooleanLiteralNode, indent: string): string;
-    debugArrayLiteral(node: ArrayLiteralNode, indent: string): string;
-    debugVariableDeclaration(
-        node: VariableDeclarationNode,
-        indent: string
-    ): string;
-    debugIdentifier(node: IdentifierNode, indent: string): string;
-    debugMathOperation(node: MathOperationNode, indent: string): string;
-    debugComparisonOperation(
-        node: ComparisonOperationNode,
-        indent: string
-    ): string;
-    debugStackOperation(node: StackOperationNode, indent: string): string;
-    debugIfStatement(node: IfStatementNode, indent: string): string;
-    debugLoopStatement(node: LoopStatementNode, indent: string): string;
-    debugFunctionDefinition(
-        node: FunctionDefinitionNode,
-        indent: string
-    ): string;
-    debugIOOperation(node: IOOperationNode, indent: string): string;
-    debugIndexExpression(node: IndexExpressionNode, indent: string): string;
-    debugComparisonExpression(
-        node: ComparisonExpressionNode,
-        indent: string
-    ): string;
+    debugProgram(node: ProgramNode): string;
+    debugNumberLiteral(node: NumberLiteralNode): string;
+    debugStringLiteral(node: StringLiteralNode): string;
+    debugBooleanLiteral(node: BooleanLiteralNode): string;
+    debugArrayLiteral(node: ArrayLiteralNode): string;
+    debugVariableDeclaration(node: VariableDeclarationNode): string;
+    debugIdentifier(node: IdentifierNode): string;
+    debugMathOperation(node: MathOperationNode): string;
+    debugComparisonOperation(node: ComparisonOperationNode): string;
+    debugStackOperation(node: StackOperationNode): string;
+    debugIfStatement(node: IfStatementNode): string;
+    debugLoopStatement(node: LoopStatementNode): string;
+    debugFunctionDefinition(node: FunctionDefinitionNode): string;
+    debugIOOperation(node: IOOperationNode): string;
+    debugIndexExpression(node: IndexExpressionNode): string;
+    debugComparisonExpression(node: ComparisonExpressionNode): string;
 }
 
 export interface AST {
