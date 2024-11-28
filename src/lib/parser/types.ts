@@ -14,26 +14,57 @@ import type {
 } from "../emojiConstants";
 
 export interface Node {
-    accept<T>(visitor: NodeVisitor<T>): T;
+    accept(visitor: NodeVisitor): string;
+    debug(visitor: NodeVisitor, indent: string): string;
 }
 
-export interface NodeVisitor<T> {
-    visitProgram(node: ProgramNode): T;
-    visitNumberLiteral(node: NumberLiteralNode): T;
-    visitStringLiteral(node: StringLiteralNode): T;
-    visitBooleanLiteral(node: BooleanLiteralNode): T;
-    visitArrayLiteral(node: ArrayLiteralNode): T;
-    visitVariableDeclaration(node: VariableDeclarationNode): T;
-    visitIdentifier(node: IdentifierNode): T;
-    visitMathOperation(node: MathOperationNode): T;
-    visitComparisonOperation(node: ComparisonOperationNode): T;
-    visitStackOperation(node: StackOperationNode): T;
-    visitIfStatement(node: IfStatementNode): T;
-    visitLoopStatement(node: LoopStatementNode): T;
-    visitFunctionDefinition(node: FunctionDefinitionNode): T;
-    visitIOOperation(node: IOOperationNode): T;
-    visitIndexExpression(node: IndexExpressionNode): T;
-    visitComparisonExpression(node: ComparisonExpressionNode): T;
+export interface NodeVisitor {
+    visitProgram(node: ProgramNode): string;
+    visitNumberLiteral(node: NumberLiteralNode): string;
+    visitStringLiteral(node: StringLiteralNode): string;
+    visitBooleanLiteral(node: BooleanLiteralNode): string;
+    visitArrayLiteral(node: ArrayLiteralNode): string;
+    visitVariableDeclaration(node: VariableDeclarationNode): string;
+    visitIdentifier(node: IdentifierNode): string;
+    visitMathOperation(node: MathOperationNode): string;
+    visitComparisonOperation(node: ComparisonOperationNode): string;
+    visitStackOperation(node: StackOperationNode): string;
+    visitIfStatement(node: IfStatementNode): string;
+    visitLoopStatement(node: LoopStatementNode): string;
+    visitFunctionDefinition(node: FunctionDefinitionNode): string;
+    visitIOOperation(node: IOOperationNode): string;
+    visitIndexExpression(node: IndexExpressionNode): string;
+    visitComparisonExpression(node: ComparisonExpressionNode): string;
+
+    // DEBUGGING
+    debugProgram(node: ProgramNode, indent: string): string;
+    debugNumberLiteral(node: NumberLiteralNode, indent: string): string;
+    debugStringLiteral(node: StringLiteralNode, indent: string): string;
+    debugBooleanLiteral(node: BooleanLiteralNode, indent: string): string;
+    debugArrayLiteral(node: ArrayLiteralNode, indent: string): string;
+    debugVariableDeclaration(
+        node: VariableDeclarationNode,
+        indent: string
+    ): string;
+    debugIdentifier(node: IdentifierNode, indent: string): string;
+    debugMathOperation(node: MathOperationNode, indent: string): string;
+    debugComparisonOperation(
+        node: ComparisonOperationNode,
+        indent: string
+    ): string;
+    debugStackOperation(node: StackOperationNode, indent: string): string;
+    debugIfStatement(node: IfStatementNode, indent: string): string;
+    debugLoopStatement(node: LoopStatementNode, indent: string): string;
+    debugFunctionDefinition(
+        node: FunctionDefinitionNode,
+        indent: string
+    ): string;
+    debugIOOperation(node: IOOperationNode, indent: string): string;
+    debugIndexExpression(node: IndexExpressionNode, indent: string): string;
+    debugComparisonExpression(
+        node: ComparisonExpressionNode,
+        indent: string
+    ): string;
 }
 
 export interface AST {
