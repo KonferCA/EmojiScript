@@ -124,6 +124,8 @@ export class IdentifierNode implements Types.IdentifierNode {
 export class MathOperationNode implements Types.MathOperationNode {
     constructor(
         public operator: MathOperatorEmoji,
+        public lhs: Node,
+        public rhs: Node,
         public position: Position
     ) {}
 

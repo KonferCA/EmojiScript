@@ -1,5 +1,6 @@
 import { NodeVisitor } from "./types";
 import * as Nodes from "./nodes";
+import { MathOperatorEmojis } from "../emojiConstants";
 
 export class ASTVisitor implements NodeVisitor {
     private indent: number = 0;
@@ -56,7 +57,31 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitMathOperation(node: Nodes.MathOperationNode): string {
-        return "";
+        const lhs = node.lhs.accept(this);
+        const rhs = node.rhs.accept(this);
+
+        // map math emoji operator with actual ascii
+        let operator = "";
+        switch (node.operator) {
+            case MathOperatorEmojis.ADD:
+                operator = "+";
+                break;
+            case MathOperatorEmojis.SUBTRACT:
+                operator = "-";
+                break;
+            case MathOperatorEmojis.DIVIDE:
+                operator = "/";
+                break;
+            case MathOperatorEmojis.MULTIPLY:
+                operator = "*";
+                break;
+            default:
+                throw new Error(
+                    "Invalid math operator given when visiting math operation node."
+                );
+        }
+
+        return lhs + operator + rhs;
     }
 
     visitComparisonOperation(node: Nodes.ComparisonOperationNode): string {
