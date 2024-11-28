@@ -29,7 +29,14 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitArrayLiteral(node: Nodes.ArrayLiteralNode): string {
-        return "";
+        const builder: string[] = [];
+
+        // go through all the elements in the node
+        node.elements.forEach((e) => {
+            builder.push(e.accept(this));
+        });
+
+        return "[" + builder.join(",") + "]";
     }
 
     visitVariableDeclaration(node: Nodes.VariableDeclarationNode): string {
