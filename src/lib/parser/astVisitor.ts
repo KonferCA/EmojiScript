@@ -44,7 +44,9 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitIdentifier(node: Nodes.IdentifierNode): string {
-        return "";
+        // returns the string itself without quotes
+        // for javascript to treat it like an actual identifier
+        return node.name;
     }
 
     visitMathOperation(node: Nodes.MathOperationNode): string {
