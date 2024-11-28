@@ -15,7 +15,7 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitNumberLiteral(node: Nodes.NumberLiteralNode): string {
-        return "";
+        return node.value.toString();
     }
 
     visitStringLiteral(node: Nodes.StringLiteralNode): string {
