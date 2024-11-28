@@ -8,7 +8,7 @@ import {
 } from "@/lib/parser/nodes";
 import type { Node } from "@/lib/parser/types";
 
-describe("Test String Literal Node", () => {
+describe("Test Array Literal Node", () => {
     const visitor = new ASTVisitor();
     const nodes: Node[] = [
         new NumberLiteralNode(0, { line: 0, column: 0 }),
@@ -16,7 +16,7 @@ describe("Test String Literal Node", () => {
         new BooleanLiteralNode(true, { line: 0, column: 0 }),
     ];
 
-    it("should create a new number literal node", () => {
+    it("should create a new array literal node", () => {
         const n = new ArrayLiteralNode(nodes, { line: 0, column: 0 });
         expect(n.elements).toHaveLength(nodes.length);
         expect(n.elements).toBe(nodes);
@@ -25,7 +25,7 @@ describe("Test String Literal Node", () => {
         expect(n.debug).toBeTypeOf("function");
     });
 
-    it("should construct a string with literal string for javascript", () => {
+    it("should construct a string with literal array for javascript", () => {
         const n = new ArrayLiteralNode(nodes, { line: 0, column: 0 });
         const s = n.accept(visitor);
         // get the string from all the nodes
