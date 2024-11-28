@@ -40,7 +40,9 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitVariableDeclaration(node: Nodes.VariableDeclarationNode): string {
-        return "";
+        const identStr = node.name.accept(this);
+        const valueStr = node.value.accept(this);
+        return `let ${identStr}=${valueStr}`;
     }
 
     visitIdentifier(node: Nodes.IdentifierNode): string {
