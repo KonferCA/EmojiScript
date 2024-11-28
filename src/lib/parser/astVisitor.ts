@@ -25,7 +25,7 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitBooleanLiteral(node: Nodes.BooleanLiteralNode): string {
-        return "";
+        return `${node.value}`;
     }
 
     visitArrayLiteral(node: Nodes.ArrayLiteralNode): string {
