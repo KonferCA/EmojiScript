@@ -11,7 +11,11 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitProgram(node: Nodes.ProgramNode): string {
-        return "";
+        const jsStrList: string[] = [];
+        node.statements.forEach((stmt) => {
+            jsStrList.push(stmt.accept(this));
+        });
+        return jsStrList.join(";");
     }
 
     visitNumberLiteral(node: Nodes.NumberLiteralNode): string {
