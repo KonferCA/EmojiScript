@@ -13,6 +13,8 @@ var_declaration = type emoji_char+ literal
 
 inline_literal = type literal
 
+var_assignment = "📥" emoji_char+ var | "📥" emoji_char+ literal
+
 type = "📝" | "🔢" | "🏁"
 
 literal = number | string | boolean | array
@@ -50,7 +52,7 @@ loop = "🔁" statement* "⏹️"
 
 function = "📎" emoji_char* "👉" statement* "⏹️"
 
-io_operation = "📢" | "📥"
+io_operation = "📢"
 ```
 
 ## Function Signatures
