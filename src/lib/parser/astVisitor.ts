@@ -137,7 +137,14 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitLoopStatement(node: Nodes.LoopStatementNode): string {
-        return "";
+        return [
+            "while(",
+            node.condition.accept(this),
+            ")",
+            "{",
+            node.body.map((n) => n.accept(this)).join(";"),
+            "}",
+        ].join("");
     }
 
     visitFunctionDefinition(node: Nodes.FunctionDefinitionNode): string {
