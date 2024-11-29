@@ -187,9 +187,20 @@ export class IfStatementNode implements Types.IfStatementNode {
 
 export class ExpressionNode implements Types.ExpressionNode {
     constructor(
-        public left: Node,
-        public operator: RelationalEmoji | MathOperatorEmoji | null,
-        public right: Node | null,
+    public left:
+        | NumberLiteralNode
+        | StringLiteralNode
+        | BooleanLiteralNode
+        | IndexExpressionNode
+        | ExpressionNode,
+    public operator: RelationalEmoji | MathOperatorEmoji | null,
+    public right:
+        | NumberLiteralNode
+        | StringLiteralNode
+        | BooleanLiteralNode
+        | IndexExpressionNode
+        | ExpressionNode
+        | null,
         public setParenthesis: boolean,
         public position: Position
     ) {}
