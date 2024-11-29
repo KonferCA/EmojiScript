@@ -187,20 +187,20 @@ export class IfStatementNode implements Types.IfStatementNode {
 
 export class ExpressionNode implements Types.ExpressionNode {
     constructor(
-    public left:
-        | NumberLiteralNode
-        | StringLiteralNode
-        | BooleanLiteralNode
-        | IndexExpressionNode
-        | ExpressionNode,
-    public operator: RelationalEmoji | MathOperatorEmoji | null,
-    public right:
-        | NumberLiteralNode
-        | StringLiteralNode
-        | BooleanLiteralNode
-        | IndexExpressionNode
-        | ExpressionNode
-        | null,
+        public left:
+            | NumberLiteralNode
+            | StringLiteralNode
+            | BooleanLiteralNode
+            | IndexExpressionNode
+            | ExpressionNode,
+        public operator: RelationalEmoji | MathOperatorEmoji | null,
+        public right:
+            | NumberLiteralNode
+            | StringLiteralNode
+            | BooleanLiteralNode
+            | IndexExpressionNode
+            | ExpressionNode
+            | null,
         public setParenthesis: boolean,
         public position: Position
     ) {}
@@ -232,6 +232,7 @@ export class LoopStatementNode implements Types.LoopStatementNode {
 export class FunctionDefinitionNode implements Types.FunctionDefinitionNode {
     constructor(
         public body: Node[],
+        public name: Types.IdentifierNode,
         public position: Position
     ) {}
 
@@ -241,6 +242,22 @@ export class FunctionDefinitionNode implements Types.FunctionDefinitionNode {
 
     debug(visitor: NodeVisitor): string {
         return visitor.debugFunctionDefinition(this);
+    }
+}
+
+export class FunctionCallNode implements Types.FunctionCallNode {
+    constructor(
+        public name: Types.IdentifierNode,
+        public parameters: Types.ExpressionCompatibleNodes[],
+        public position: Position
+    ) {}
+
+    accept(visitor: NodeVisitor): string {
+        return visitor.visitFunctionCall(this);
+    }
+
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugFunctionCall(this);
     }
 }
 

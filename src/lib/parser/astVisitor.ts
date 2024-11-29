@@ -152,6 +152,10 @@ export class ASTVisitor implements NodeVisitor {
         return "";
     }
 
+    visitFunctionCall(node: Nodes.FunctionCallNode): string {
+        return "";
+    }
+
     visitIOOperation(node: Nodes.IOOperationNode): string {
         return "";
     }
@@ -246,6 +250,10 @@ ${this.getIndentation()}Consequent:\n${consequent}${
         const body = node.body.map((stmt) => stmt.accept(this)).join("\n");
         this.indent--;
         return `${this.getIndentation()}FunctionDefinition:\n${body}`;
+    }
+
+    debugFunctionCall(node: Nodes.FunctionCallNode): string {
+        return "FunctionCall";
     }
 
     debugIOOperation(node: Nodes.IOOperationNode): string {

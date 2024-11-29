@@ -32,6 +32,7 @@ export interface NodeVisitor {
     visitIfStatement(node: IfStatementNode): string;
     visitLoopStatement(node: LoopStatementNode): string;
     visitFunctionDefinition(node: FunctionDefinitionNode): string;
+    visitFunctionCall(node: FunctionCallNode): string;
     visitIOOperation(node: IOOperationNode): string;
     visitIndexExpression(node: IndexExpressionNode): string;
     visitExpression(node: ExpressionNode): string;
@@ -50,6 +51,7 @@ export interface NodeVisitor {
     debugIfStatement(node: IfStatementNode): string;
     debugLoopStatement(node: LoopStatementNode): string;
     debugFunctionDefinition(node: FunctionDefinitionNode): string;
+    debugFunctionCall(node: FunctionCallNode): string;
     debugIOOperation(node: IOOperationNode): string;
     debugIndexExpression(node: IndexExpressionNode): string;
     debugExpression(node: ExpressionNode): string;
@@ -122,21 +124,19 @@ export interface IfStatementNode extends Node {
     position: Position;
 }
 
+export type ExpressionCompatibleNodes =
+    | NumberLiteralNode
+    | StringLiteralNode
+    | BooleanLiteralNode
+    | IndexExpressionNode
+    | FunctionCallNode
+    | IdentifierNode
+    | ExpressionNode;
+
 export interface ExpressionNode extends Node {
-    left:
-        | NumberLiteralNode
-        | StringLiteralNode
-        | BooleanLiteralNode
-        | IndexExpressionNode
-        | ExpressionNode;
+    left: ExpressionCompatibleNodes;
     operator: RelationalEmoji | MathOperatorEmoji | null;
-    right:
-        | NumberLiteralNode
-        | StringLiteralNode
-        | BooleanLiteralNode
-        | IndexExpressionNode
-        | ExpressionNode
-        | null;
+    right: ExpressionCompatibleNodes | null;
     setParenthesis: boolean;
     position: Position;
 }
@@ -148,6 +148,13 @@ export interface LoopStatementNode extends Node {
 
 export interface FunctionDefinitionNode extends Node {
     body: Node[];
+    name: IdentifierNode;
+    position: Position;
+}
+
+export interface FunctionCallNode extends Node {
+    name: IdentifierNode;
+    parameters: ExpressionCompatibleNodes[];
     position: Position;
 }
 
