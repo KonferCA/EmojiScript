@@ -263,7 +263,7 @@ ${this.getIndentation()}Consequent:\n${consequent}${
     }
 
     debugFunctionCall(node: Nodes.FunctionCallNode): string {
-        return "FunctionCall";
+        return `${this.getIndentation()}FunctionCall:${node.name}`;
     }
 
     debugIOOperation(node: Nodes.IOOperationNode): string {
