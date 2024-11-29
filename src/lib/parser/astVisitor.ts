@@ -1,6 +1,11 @@
 import { NodeVisitor } from "./types";
 import * as Nodes from "./nodes";
-import { MathOperatorEmojis } from "../emojiConstants";
+import {
+    MathOperatorEmoji,
+    MathOperatorEmojis,
+    RelationalEmoji,
+    RelationalEmojis,
+} from "../emojiConstants";
 
 export class ASTVisitor implements NodeVisitor {
     private indent: number = 0;
@@ -61,26 +66,7 @@ export class ASTVisitor implements NodeVisitor {
         const rhs = node.rhs.accept(this);
 
         // map math emoji operator with actual ascii
-        let operator = "";
-        switch (node.operator) {
-            case MathOperatorEmojis.ADD:
-                operator = "+";
-                break;
-            case MathOperatorEmojis.SUBTRACT:
-                operator = "-";
-                break;
-            case MathOperatorEmojis.DIVIDE:
-                operator = "/";
-                break;
-            case MathOperatorEmojis.MULTIPLY:
-                operator = "*";
-                break;
-            default:
-                throw new Error(
-                    "Invalid math operator given when visiting math operation node."
-                );
-        }
-
+        const operator = this.emojiOperator2JsOperator(node.operator);
         return lhs + operator + rhs;
     }
 
@@ -96,8 +82,39 @@ export class ASTVisitor implements NodeVisitor {
         return "";
     }
 
-    visitComparisonExpression(node: Nodes.ComparisonExpressionNode): string {
-        return "";
+    visitExpression(node: Nodes.ExpressionNode): string {
+        if (node.operator === null && node.right !== null)
+            throw new Error("Missing operator for expression.");
+        if (
+            node.operator !== null &&
+            node.operator !== RelationalEmojis.NOT &&
+            node.right === null
+        )
+            throw new Error(
+                "Missing right hand side when operator is defined."
+            );
+
+        const lhs = node.left.accept(this);
+        let op: string = "";
+        if (node.operator !== null) {
+            op = this.emojiOperator2JsOperator(node.operator);
+        }
+        let rhs: string = "";
+        if (node.right !== null) {
+            rhs = node.right.accept(this);
+        }
+
+        let end = "";
+        if (node.operator && node.operator == RelationalEmojis.NOT) {
+            end = `${op}${lhs}`;
+        } else {
+            end = lhs + op + rhs;
+        }
+        if (node.setParenthesis) {
+            end = `(${end})`;
+        }
+
+        return end;
     }
 
     visitLoopStatement(node: Nodes.LoopStatementNode): string {
@@ -214,12 +231,44 @@ ${this.getIndentation()}Consequent:\n${consequent}${
         return `${this.getIndentation()}IndexExpression:\n${expression}\n${this.getIndentation()}  Index: ${node.index}`;
     }
 
-    debugComparisonExpression(node: Nodes.ComparisonExpressionNode): string {
+    debugExpression(node: Nodes.ExpressionNode): string {
         this.indent++;
         const left = node.left.accept(this);
-        const operator = node.operator.accept(this);
-        const right = node.right.accept(this);
+        const operator =
+            node.operator !== null
+                ? this.emojiOperator2JsOperator(node.operator)
+                : "null";
+        const right = node.right?.accept(this);
         this.indent--;
         return `${this.getIndentation()}ComparisonExpression:\n${left}\n${operator}\n${right}`;
+    }
+
+    private emojiOperator2JsOperator(
+        op: RelationalEmoji | MathOperatorEmoji
+    ): string {
+        switch (op) {
+            case RelationalEmojis.OR:
+                return "||";
+            case RelationalEmojis.AND:
+                return "&&";
+            case RelationalEmojis.NOT:
+                return "!";
+            case RelationalEmojis.EQUAL:
+                return "===";
+            case RelationalEmojis.LESS_OR_EQUAL:
+                return "<=";
+            case RelationalEmojis.GREATER_OR_EQUAL:
+                return ">=";
+            case MathOperatorEmojis.ADD:
+                return "+";
+            case MathOperatorEmojis.SUBTRACT:
+                return "-";
+            case MathOperatorEmojis.DIVIDE:
+                return "/";
+            case MathOperatorEmojis.MULTIPLY:
+                return "*";
+            default:
+                throw new Error("Invalid emoji operator");
+        }
     }
 }
