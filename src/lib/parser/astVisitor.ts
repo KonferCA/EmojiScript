@@ -1,4 +1,4 @@
-import { NodeVisitor } from "./types";
+import { AssignmentNode, NodeVisitor } from "./types";
 import * as Nodes from "./nodes";
 import {
     MathOperatorEmoji,
@@ -189,6 +189,14 @@ export class ASTVisitor implements NodeVisitor {
         ].join("");
     }
 
+    visitAssignment(node: AssignmentNode): string {
+        return [
+            node.identifier.accept(this),
+            "=",
+            node.value.accept(this),
+        ].join("");
+    }
+
     debugProgram(node: Nodes.ProgramNode): string {
         this.indent++;
         const statements = node.statements
@@ -293,6 +301,10 @@ ${this.getIndentation()}Consequent:\n${consequent}${
         const right = node.right?.accept(this);
         this.indent--;
         return `${this.getIndentation()}ComparisonExpression:\n${left}\n${operator}\n${right}`;
+    }
+
+    debugAssignment(node: AssignmentNode): string {
+        return "Assignment";
     }
 
     private emojiOperator2JsOperator(

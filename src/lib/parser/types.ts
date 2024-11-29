@@ -34,6 +34,7 @@ export interface NodeVisitor {
     visitIOOperation(node: IOOperationNode): string;
     visitIndexExpression(node: IndexExpressionNode): string;
     visitExpression(node: ExpressionNode): string;
+    visitAssignment(node: AssignmentNode): string;
 
     // DEBUGGING
     debugProgram(node: ProgramNode): string;
@@ -51,6 +52,7 @@ export interface NodeVisitor {
     debugIOOperation(node: IOOperationNode): string;
     debugIndexExpression(node: IndexExpressionNode): string;
     debugExpression(node: ExpressionNode): string;
+    debugAssignment(node: AssignmentNode): string;
 }
 
 export interface AST {
@@ -172,6 +174,12 @@ export type IndexableNodes =
 export interface IndexExpressionNode extends Node {
     expression: IndexableNodes;
     index: number;
+    position: Position;
+}
+
+export interface AssignmentNode extends Node {
+    identifier: IdentifierNode;
+    value: ExpressionCompatibleNodes;
     position: Position;
 }
 

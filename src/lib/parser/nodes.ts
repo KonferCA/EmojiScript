@@ -252,3 +252,19 @@ export class IndexExpressionNode implements Types.IndexExpressionNode {
         return visitor.debugIndexExpression(this);
     }
 }
+
+export class AssignmentNode implements Types.AssignmentNode {
+    constructor(
+        public identifier: Types.IdentifierNode,
+        public value: Types.ExpressionCompatibleNodes,
+        public position: Position
+    ) {}
+
+    accept(visitor: NodeVisitor): string {
+        return visitor.visitAssignment(this);
+    }
+
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugAssignment(this);
+    }
+}
