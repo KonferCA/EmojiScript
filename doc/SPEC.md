@@ -24,7 +24,7 @@ data_push = number | string | boolean | array
 number = emoji_digit+
 emoji_digit = "0️⃣" | "1️⃣" | "2️⃣" | "3️⃣" | "4️⃣" | "5️⃣" | "6️⃣" | "7️⃣" | "8️⃣" | "9️⃣"
 
-string = emoji_char*
+string = emoji_char* "📋"
 
 boolean = "✅" | "❌"
 
