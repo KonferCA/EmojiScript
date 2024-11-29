@@ -1,4 +1,4 @@
-import { NodeVisitor } from "./types";
+import { AssignmentNode, NodeVisitor } from "./types";
 import * as Nodes from "./nodes";
 import {
     MathOperatorEmoji,
@@ -70,14 +70,6 @@ export class ASTVisitor implements NodeVisitor {
         return lhs + operator + rhs;
     }
 
-    visitComparisonOperation(node: Nodes.ComparisonOperationNode): string {
-        return "";
-    }
-
-    visitStackOperation(node: Nodes.StackOperationNode): string {
-        return "";
-    }
-
     visitIfStatement(node: Nodes.IfStatementNode): string {
         const builder: string[] = ["if("];
 
@@ -145,19 +137,64 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitLoopStatement(node: Nodes.LoopStatementNode): string {
-        return "";
+        return [
+            "while(",
+            node.condition.accept(this),
+            ")",
+            "{",
+            node.body.map((n) => n.accept(this)).join(";"),
+            "}",
+        ].join("");
     }
 
     visitFunctionDefinition(node: Nodes.FunctionDefinitionNode): string {
-        return "";
+        const builder: string[] = ["function ", node.name.accept(this), "("];
+
+        // get the parameters
+        let body: string[] = [];
+        node.parameters.forEach((p) => body.push(p.accept(this)));
+        builder.push(body.join(","), ")", "{");
+        body = [];
+
+        // construct the body
+        node.body.forEach((n) => body.push(n.accept(this)));
+        builder.push(body.join(";"), "}");
+        return builder.join("");
+    }
+
+    visitFunctionCall(node: Nodes.FunctionCallNode): string {
+        const name = node.name.accept(this);
+        const paramBuilder: string[] = [];
+        node.parameters.forEach((param) => {
+            paramBuilder.push(param.accept(this));
+        });
+        return `${name}(${paramBuilder.join(",")})`;
     }
 
     visitIOOperation(node: Nodes.IOOperationNode): string {
-        return "";
+        const builder: string[] = [
+            typeof window !== "undefined" ? "window.alert(" : "console.log(",
+            node.value.accept(this),
+            ")",
+        ];
+        return builder.join("");
     }
 
     visitIndexExpression(node: Nodes.IndexExpressionNode): string {
-        return "";
+        return [
+            node.expression.accept(this),
+            "[",
+            node.index.toString(),
+            "]",
+        ].join("");
+    }
+
+    visitAssignment(node: AssignmentNode): string {
+        return [
+            node.identifier.accept(this),
+            "=",
+            node.value.accept(this),
+        ].join("");
     }
 
     debugProgram(node: Nodes.ProgramNode): string {
@@ -206,14 +243,6 @@ export class ASTVisitor implements NodeVisitor {
         return `${this.getIndentation()}MathOperation: ${node.operator}`;
     }
 
-    debugComparisonOperation(node: Nodes.ComparisonOperationNode): string {
-        return `${this.getIndentation()}ComparisonOperation: ${node.operator}`;
-    }
-
-    debugStackOperation(node: Nodes.StackOperationNode): string {
-        return `${this.getIndentation()}StackOperation: ${node.operator}`;
-    }
-
     debugIfStatement(node: Nodes.IfStatementNode): string {
         this.indent++;
         const condition = node.condition.accept(this);
@@ -248,6 +277,10 @@ ${this.getIndentation()}Consequent:\n${consequent}${
         return `${this.getIndentation()}FunctionDefinition:\n${body}`;
     }
 
+    debugFunctionCall(node: Nodes.FunctionCallNode): string {
+        return `${this.getIndentation()}FunctionCall:${node.name}`;
+    }
+
     debugIOOperation(node: Nodes.IOOperationNode): string {
         return `${this.getIndentation()}IOOperation: ${node.type}`;
     }
@@ -270,6 +303,10 @@ ${this.getIndentation()}Consequent:\n${consequent}${
         return `${this.getIndentation()}ComparisonExpression:\n${left}\n${operator}\n${right}`;
     }
 
+    debugAssignment(node: AssignmentNode): string {
+        return "Assignment";
+    }
+
     private emojiOperator2JsOperator(
         op: RelationalEmoji | MathOperatorEmoji
     ): string {
@@ -284,8 +321,12 @@ ${this.getIndentation()}Consequent:\n${consequent}${
                 return "===";
             case RelationalEmojis.LESS_OR_EQUAL:
                 return "<=";
+            case RelationalEmojis.LESS:
+                return "<";
             case RelationalEmojis.GREATER_OR_EQUAL:
                 return ">=";
+            case RelationalEmojis.GREATER:
+                return ">";
             case MathOperatorEmojis.ADD:
                 return "+";
             case MathOperatorEmojis.SUBTRACT:

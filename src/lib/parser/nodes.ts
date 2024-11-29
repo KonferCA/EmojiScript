@@ -7,7 +7,6 @@ type Position = {
 };
 
 import type {
-    ControlFlowEmoji,
     IOEmoji,
     MathOperatorEmoji,
     RelationalEmoji,
@@ -138,36 +137,6 @@ export class MathOperationNode implements Types.MathOperationNode {
     }
 }
 
-export class ComparisonOperationNode implements Types.ComparisonOperationNode {
-    constructor(
-        public operator: RelationalEmoji,
-        public position: Position
-    ) {}
-
-    accept(visitor: NodeVisitor): string {
-        return visitor.visitComparisonOperation(this);
-    }
-
-    debug(visitor: NodeVisitor): string {
-        return visitor.debugComparisonOperation(this);
-    }
-}
-
-export class StackOperationNode implements Types.StackOperationNode {
-    constructor(
-        public operator: ControlFlowEmoji,
-        public position: Position
-    ) {}
-
-    accept(visitor: NodeVisitor): string {
-        return visitor.visitStackOperation(this);
-    }
-
-    debug(visitor: NodeVisitor): string {
-        return visitor.debugStackOperation(this);
-    }
-}
-
 export class IfStatementNode implements Types.IfStatementNode {
     constructor(
         public condition: Types.ExpressionNode,
@@ -187,20 +156,9 @@ export class IfStatementNode implements Types.IfStatementNode {
 
 export class ExpressionNode implements Types.ExpressionNode {
     constructor(
-    public left:
-        | NumberLiteralNode
-        | StringLiteralNode
-        | BooleanLiteralNode
-        | IndexExpressionNode
-        | ExpressionNode,
-    public operator: RelationalEmoji | MathOperatorEmoji | null,
-    public right:
-        | NumberLiteralNode
-        | StringLiteralNode
-        | BooleanLiteralNode
-        | IndexExpressionNode
-        | ExpressionNode
-        | null,
+        public left: Types.ExpressionCompatibleNodes,
+        public operator: RelationalEmoji | MathOperatorEmoji | null,
+        public right: Types.ExpressionCompatibleNodes | null,
         public setParenthesis: boolean,
         public position: Position
     ) {}
@@ -216,6 +174,7 @@ export class ExpressionNode implements Types.ExpressionNode {
 
 export class LoopStatementNode implements Types.LoopStatementNode {
     constructor(
+        public condition: ExpressionNode,
         public body: Node[],
         public position: Position
     ) {}
@@ -231,6 +190,8 @@ export class LoopStatementNode implements Types.LoopStatementNode {
 
 export class FunctionDefinitionNode implements Types.FunctionDefinitionNode {
     constructor(
+        public name: Types.IdentifierNode,
+        public parameters: Types.IdentifierNode[],
         public body: Node[],
         public position: Position
     ) {}
@@ -244,9 +205,26 @@ export class FunctionDefinitionNode implements Types.FunctionDefinitionNode {
     }
 }
 
+export class FunctionCallNode implements Types.FunctionCallNode {
+    constructor(
+        public name: Types.IdentifierNode,
+        public parameters: Types.ExpressionCompatibleNodes[],
+        public position: Position
+    ) {}
+
+    accept(visitor: NodeVisitor): string {
+        return visitor.visitFunctionCall(this);
+    }
+
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugFunctionCall(this);
+    }
+}
+
 export class IOOperationNode implements Types.IOOperationNode {
     constructor(
         public type: IOEmoji,
+        public value: Types.ExpressionCompatibleNodes,
         public position: Position
     ) {}
 
@@ -261,7 +239,7 @@ export class IOOperationNode implements Types.IOOperationNode {
 
 export class IndexExpressionNode implements Types.IndexExpressionNode {
     constructor(
-        public expression: Node,
+        public expression: Types.IndexableNodes,
         public index: number,
         public position: Position
     ) {}
@@ -272,5 +250,21 @@ export class IndexExpressionNode implements Types.IndexExpressionNode {
 
     debug(visitor: NodeVisitor): string {
         return visitor.debugIndexExpression(this);
+    }
+}
+
+export class AssignmentNode implements Types.AssignmentNode {
+    constructor(
+        public identifier: Types.IdentifierNode,
+        public value: Types.ExpressionCompatibleNodes,
+        public position: Position
+    ) {}
+
+    accept(visitor: NodeVisitor): string {
+        return visitor.visitAssignment(this);
+    }
+
+    debug(visitor: NodeVisitor): string {
+        return visitor.debugAssignment(this);
     }
 }

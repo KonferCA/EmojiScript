@@ -27,14 +27,14 @@ export interface NodeVisitor {
     visitVariableDeclaration(node: VariableDeclarationNode): string;
     visitIdentifier(node: IdentifierNode): string;
     visitMathOperation(node: MathOperationNode): string;
-    visitComparisonOperation(node: ComparisonOperationNode): string;
-    visitStackOperation(node: StackOperationNode): string;
     visitIfStatement(node: IfStatementNode): string;
     visitLoopStatement(node: LoopStatementNode): string;
     visitFunctionDefinition(node: FunctionDefinitionNode): string;
+    visitFunctionCall(node: FunctionCallNode): string;
     visitIOOperation(node: IOOperationNode): string;
     visitIndexExpression(node: IndexExpressionNode): string;
     visitExpression(node: ExpressionNode): string;
+    visitAssignment(node: AssignmentNode): string;
 
     // DEBUGGING
     debugProgram(node: ProgramNode): string;
@@ -45,14 +45,14 @@ export interface NodeVisitor {
     debugVariableDeclaration(node: VariableDeclarationNode): string;
     debugIdentifier(node: IdentifierNode): string;
     debugMathOperation(node: MathOperationNode): string;
-    debugComparisonOperation(node: ComparisonOperationNode): string;
-    debugStackOperation(node: StackOperationNode): string;
     debugIfStatement(node: IfStatementNode): string;
     debugLoopStatement(node: LoopStatementNode): string;
     debugFunctionDefinition(node: FunctionDefinitionNode): string;
+    debugFunctionCall(node: FunctionCallNode): string;
     debugIOOperation(node: IOOperationNode): string;
     debugIndexExpression(node: IndexExpressionNode): string;
     debugExpression(node: ExpressionNode): string;
+    debugAssignment(node: AssignmentNode): string;
 }
 
 export interface AST {
@@ -122,43 +122,64 @@ export interface IfStatementNode extends Node {
     position: Position;
 }
 
+export type ExpressionCompatibleNodes =
+    | NumberLiteralNode
+    | StringLiteralNode
+    | BooleanLiteralNode
+    | IndexExpressionNode
+    | FunctionCallNode
+    | IdentifierNode
+    | ExpressionNode;
+
 export interface ExpressionNode extends Node {
-    left:
-        | NumberLiteralNode
-        | StringLiteralNode
-        | BooleanLiteralNode
-        | IndexExpressionNode
-        | ExpressionNode;
+    left: ExpressionCompatibleNodes;
     operator: RelationalEmoji | MathOperatorEmoji | null;
-    right:
-        | NumberLiteralNode
-        | StringLiteralNode
-        | BooleanLiteralNode
-        | IndexExpressionNode
-        | ExpressionNode
-        | null;
+    right: ExpressionCompatibleNodes | null;
     setParenthesis: boolean;
     position: Position;
 }
 
 export interface LoopStatementNode extends Node {
+    condition: ExpressionNode;
     body: Node[];
     position: Position;
 }
 
 export interface FunctionDefinitionNode extends Node {
     body: Node[];
+    name: IdentifierNode;
+    parameters: IdentifierNode[];
+    position: Position;
+}
+
+export interface FunctionCallNode extends Node {
+    name: IdentifierNode;
+    parameters: ExpressionCompatibleNodes[];
     position: Position;
 }
 
 export interface IOOperationNode extends Node {
     type: IOEmoji;
+    value: ExpressionCompatibleNodes;
     position: Position;
 }
 
+export type IndexableNodes =
+    | FunctionCallNode
+    | IdentifierNode
+    | IndexExpressionNode
+    | ArrayLiteralNode
+    | ExpressionNode;
+
 export interface IndexExpressionNode extends Node {
-    expression: Node;
+    expression: IndexableNodes;
     index: number;
+    position: Position;
+}
+
+export interface AssignmentNode extends Node {
+    identifier: IdentifierNode;
+    value: ExpressionCompatibleNodes;
     position: Position;
 }
 
