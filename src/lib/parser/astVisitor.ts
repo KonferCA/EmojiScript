@@ -153,7 +153,12 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitFunctionCall(node: Nodes.FunctionCallNode): string {
-        return "";
+        const name = node.name.accept(this);
+        const paramBuilder: string[] = [];
+        node.parameters.forEach((param) => {
+            paramBuilder.push(param.accept(this));
+        });
+        return `${name}(${paramBuilder.join(",")})`;
     }
 
     visitIOOperation(node: Nodes.IOOperationNode): string {
