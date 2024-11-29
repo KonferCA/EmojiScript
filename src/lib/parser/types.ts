@@ -123,9 +123,20 @@ export interface IfStatementNode extends Node {
 }
 
 export interface ExpressionNode extends Node {
-    left: Node;
+    left:
+        | NumberLiteralNode
+        | StringLiteralNode
+        | BooleanLiteralNode
+        | IndexExpressionNode
+        | ExpressionNode;
     operator: RelationalEmoji | MathOperatorEmoji | null;
-    right: Node | null;
+    right:
+        | NumberLiteralNode
+        | StringLiteralNode
+        | BooleanLiteralNode
+        | IndexExpressionNode
+        | ExpressionNode
+        | null;
     setParenthesis: boolean;
     position: Position;
 }
