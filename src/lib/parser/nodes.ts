@@ -174,6 +174,7 @@ export class ExpressionNode implements Types.ExpressionNode {
 
 export class LoopStatementNode implements Types.LoopStatementNode {
     constructor(
+        public condition: ExpressionNode,
         public body: Node[],
         public position: Position
     ) {}

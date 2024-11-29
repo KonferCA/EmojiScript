@@ -138,6 +138,7 @@ export interface ExpressionNode extends Node {
 }
 
 export interface LoopStatementNode extends Node {
+    condition: ExpressionNode;
     body: Node[];
     position: Position;
 }
