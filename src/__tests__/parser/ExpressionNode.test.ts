@@ -81,7 +81,7 @@ describe("Test Expression Node", () => {
         expect(() => n.accept(visitor)).toThrow();
     });
 
-    it("should throw wehn no operator defined with RHS", () => {
+    it("should throw when no operator defined with RHS", () => {
         const lhs = new BooleanLiteralNode(false, position);
         const rhs = new BooleanLiteralNode(false, position);
         const n = new ExpressionNode(lhs, null, rhs, false, position);
