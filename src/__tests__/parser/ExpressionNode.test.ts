@@ -87,4 +87,22 @@ describe("Test Expression Node", () => {
         const n = new ExpressionNode(lhs, null, rhs, false, position);
         expect(() => n.accept(visitor)).toThrow();
     });
+
+    it("should negate the nested expression", () => {
+        const lhs = new ExpressionNode(
+            new NumberLiteralNode(1, position),
+            RelationalEmojis.EQUAL,
+            new NumberLiteralNode(1, position),
+            true,
+            position
+        );
+        const n = new ExpressionNode(
+            lhs,
+            RelationalEmojis.NOT,
+            null,
+            false,
+            position
+        );
+        expect(n.accept(visitor)).toEqual("!(1===1)");
+    });
 });
