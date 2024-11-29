@@ -27,8 +27,6 @@ export interface NodeVisitor {
     visitVariableDeclaration(node: VariableDeclarationNode): string;
     visitIdentifier(node: IdentifierNode): string;
     visitMathOperation(node: MathOperationNode): string;
-    visitComparisonOperation(node: ComparisonOperationNode): string;
-    visitStackOperation(node: StackOperationNode): string;
     visitIfStatement(node: IfStatementNode): string;
     visitLoopStatement(node: LoopStatementNode): string;
     visitFunctionDefinition(node: FunctionDefinitionNode): string;
@@ -46,8 +44,6 @@ export interface NodeVisitor {
     debugVariableDeclaration(node: VariableDeclarationNode): string;
     debugIdentifier(node: IdentifierNode): string;
     debugMathOperation(node: MathOperationNode): string;
-    debugComparisonOperation(node: ComparisonOperationNode): string;
-    debugStackOperation(node: StackOperationNode): string;
     debugIfStatement(node: IfStatementNode): string;
     debugLoopStatement(node: LoopStatementNode): string;
     debugFunctionDefinition(node: FunctionDefinitionNode): string;
@@ -165,8 +161,15 @@ export interface IOOperationNode extends Node {
     position: Position;
 }
 
+export type IndexableNodes =
+    | FunctionCallNode
+    | IdentifierNode
+    | IndexExpressionNode
+    | ArrayLiteralNode
+    | ExpressionNode;
+
 export interface IndexExpressionNode extends Node {
-    expression: Node;
+    expression: IndexableNodes;
     index: number;
     position: Position;
 }

@@ -269,7 +269,7 @@ export class IOOperationNode implements Types.IOOperationNode {
 
 export class IndexExpressionNode implements Types.IndexExpressionNode {
     constructor(
-        public expression: Node,
+        public expression: Types.IndexableNodes,
         public index: number,
         public position: Position
     ) {}

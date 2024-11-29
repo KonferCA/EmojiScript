@@ -70,14 +70,6 @@ export class ASTVisitor implements NodeVisitor {
         return lhs + operator + rhs;
     }
 
-    visitComparisonOperation(node: Nodes.ComparisonOperationNode): string {
-        return "";
-    }
-
-    visitStackOperation(node: Nodes.StackOperationNode): string {
-        return "";
-    }
-
     visitIfStatement(node: Nodes.IfStatementNode): string {
         const builder: string[] = ["if("];
 
@@ -182,7 +174,12 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitIndexExpression(node: Nodes.IndexExpressionNode): string {
-        return "";
+        return [
+            node.expression.accept(this),
+            "[",
+            node.index.toString(),
+            "]",
+        ].join("");
     }
 
     debugProgram(node: Nodes.ProgramNode): string {
@@ -229,14 +226,6 @@ export class ASTVisitor implements NodeVisitor {
 
     debugMathOperation(node: Nodes.MathOperationNode): string {
         return `${this.getIndentation()}MathOperation: ${node.operator}`;
-    }
-
-    debugComparisonOperation(node: Nodes.ComparisonOperationNode): string {
-        return `${this.getIndentation()}ComparisonOperation: ${node.operator}`;
-    }
-
-    debugStackOperation(node: Nodes.StackOperationNode): string {
-        return `${this.getIndentation()}StackOperation: ${node.operator}`;
     }
 
     debugIfStatement(node: Nodes.IfStatementNode): string {
