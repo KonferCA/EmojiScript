@@ -26,6 +26,11 @@ export const NumberEmojis = {
     NINE: "9️⃣" as const,
 } as const;
 
+// Strings
+export const StringEmojis = {
+    QUOTE: "📋" as const,
+} as const;
+
 // Operators
 export const MathOperatorEmojis = {
     ADD: "➕" as const,
@@ -39,6 +44,8 @@ export const RelationalEmojis = {
     EQUAL: "🎯" as const,
     GREATER_OR_EQUAL: "📈" as const,
     LESS_OR_EQUAL: "📉" as const,
+    GREATER: "⬆️" as const,
+    LESS: "⬇️" as const,
     NOT: "🚫" as const,
     AND: "🤝" as const,
     OR: "🙌" as const,
@@ -47,12 +54,10 @@ export const RelationalEmojis = {
 // Control Flow
 export const ControlFlowEmojis = {
     LOOP: "🔄" as const,
-    SHUFFLE: "🔀" as const,
     IF: "🤔" as const,
-    IF_THEN: "💭" as const,
+    IF_THEN: "👉" as const,
+    ELSE: "💭" as const,
     STOP: "⏹️" as const,
-    ARROW_UP: "⬆️" as const,
-    ARROW_DOWN: "⬇️" as const,
     PRECEDENCE: "🚧" as const,
 } as const;
 
@@ -60,12 +65,14 @@ export const ControlFlowEmojis = {
 export const ProgrammingEmojis = {
     FUNCTION_DEF: "📎" as const,
     POINTER: "👉" as const,
+    INDEXING: "🔎" as const,
+    ASSIGNMENT: "📥" as const,
+    COMMA: "🌚" as const,
 } as const;
 
 // IO
 export const IOEmojis = {
     PRINT: "📢" as const,
-    READ_INPUT: "📥" as const,
 } as const;
 
 // Derive types from the constants
@@ -73,6 +80,7 @@ export type DataTypeEmoji =
     (typeof DataTypeEmojis)[keyof typeof DataTypeEmojis];
 export type BooleanEmoji = (typeof BooleanEmojis)[keyof typeof BooleanEmojis];
 export type NumberEmoji = (typeof NumberEmojis)[keyof typeof NumberEmojis];
+export type StringEmoji = (typeof StringEmojis)[keyof typeof StringEmojis];
 export type MathOperatorEmoji =
     (typeof MathOperatorEmojis)[keyof typeof MathOperatorEmojis];
 export type RelationalEmoji =
@@ -88,6 +96,7 @@ export type ProgrammingSymbolEmoji =
     | DataTypeEmoji
     | BooleanEmoji
     | NumberEmoji
+    | StringEmoji
     | MathOperatorEmoji
     | RelationalEmoji
     | ControlFlowEmoji
@@ -102,17 +111,19 @@ export type EmojiCategory<T extends ProgrammingSymbolEmoji> =
           ? "Boolean"
           : T extends NumberEmoji
             ? "Number"
-            : T extends MathOperatorEmoji
-              ? "MathOperator"
-              : T extends RelationalEmoji
-                ? "Relational"
-                : T extends ControlFlowEmoji
-                  ? "ControlFlow"
-                  : T extends ProgrammingEmoji
-                    ? "Programming"
-                    : T extends IOEmoji
-                      ? "IO"
-                      : never;
+            : T extends StringEmoji
+              ? "String"
+              : T extends MathOperatorEmoji
+                ? "MathOperator"
+                : T extends RelationalEmoji
+                  ? "Relational"
+                  : T extends ControlFlowEmoji
+                    ? "ControlFlow"
+                    : T extends ProgrammingEmoji
+                      ? "Programming"
+                      : T extends IOEmoji
+                        ? "IO"
+                        : never;
 
 // Utility function to get emoji category
 export function getEmojiCategory(
