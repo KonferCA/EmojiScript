@@ -149,6 +149,7 @@ export interface LoopStatementNode extends Node {
 export interface FunctionDefinitionNode extends Node {
     body: Node[];
     name: IdentifierNode;
+    parameters: IdentifierNode[];
     position: Position;
 }
 

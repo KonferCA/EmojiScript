@@ -187,20 +187,9 @@ export class IfStatementNode implements Types.IfStatementNode {
 
 export class ExpressionNode implements Types.ExpressionNode {
     constructor(
-        public left:
-            | NumberLiteralNode
-            | StringLiteralNode
-            | BooleanLiteralNode
-            | IndexExpressionNode
-            | ExpressionNode,
+        public left: Types.ExpressionCompatibleNodes,
         public operator: RelationalEmoji | MathOperatorEmoji | null,
-        public right:
-            | NumberLiteralNode
-            | StringLiteralNode
-            | BooleanLiteralNode
-            | IndexExpressionNode
-            | ExpressionNode
-            | null,
+        public right: Types.ExpressionCompatibleNodes | null,
         public setParenthesis: boolean,
         public position: Position
     ) {}
@@ -231,8 +220,9 @@ export class LoopStatementNode implements Types.LoopStatementNode {
 
 export class FunctionDefinitionNode implements Types.FunctionDefinitionNode {
     constructor(
-        public body: Node[],
         public name: Types.IdentifierNode,
+        public parameters: Types.IdentifierNode[],
+        public body: Node[],
         public position: Position
     ) {}
 

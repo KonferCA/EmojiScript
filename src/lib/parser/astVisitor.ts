@@ -149,7 +149,18 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitFunctionDefinition(node: Nodes.FunctionDefinitionNode): string {
-        return "";
+        const builder: string[] = ["function ", node.name.accept(this), "("];
+
+        // get the parameters
+        let body: string[] = [];
+        node.parameters.forEach((p) => body.push(p.accept(this)));
+        builder.push(body.join(","), ")", "{");
+        body = [];
+
+        // construct the body
+        node.body.forEach((n) => body.push(n.accept(this)));
+        builder.push(body.join(";"), "}");
+        return builder.join("");
     }
 
     visitFunctionCall(node: Nodes.FunctionCallNode): string {
@@ -302,8 +313,12 @@ ${this.getIndentation()}Consequent:\n${consequent}${
                 return "===";
             case RelationalEmojis.LESS_OR_EQUAL:
                 return "<=";
+            case RelationalEmojis.LESS:
+                return "<";
             case RelationalEmojis.GREATER_OR_EQUAL:
                 return ">=";
+            case RelationalEmojis.GREATER:
+                return ">";
             case MathOperatorEmojis.ADD:
                 return "+";
             case MathOperatorEmojis.SUBTRACT:
