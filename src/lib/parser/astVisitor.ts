@@ -79,7 +79,34 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitIfStatement(node: Nodes.IfStatementNode): string {
-        return "";
+        const builder: string[] = ["if("];
+
+        // get the javascript for the condition
+        const expr = node.condition.accept(this);
+        builder.push(expr);
+        // close condition and open body
+        builder.push("){");
+
+        // get body javascript
+        let body: string[] = [];
+        node.consequent.forEach((n) => {
+            body.push(n.accept(this));
+        });
+        // close body
+        builder.push(body.join(";"), "}");
+        body = [];
+
+        // check for else
+        if (node.alternative !== undefined) {
+            builder.push("else{");
+            node.alternative.forEach((n) => {
+                body.push(n.accept(this));
+            });
+            builder.push(body.join(";"), "}");
+        }
+
+        // combine into one
+        return builder.join("");
     }
 
     visitExpression(node: Nodes.ExpressionNode): string {
