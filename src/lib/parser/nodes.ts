@@ -264,6 +264,7 @@ export class FunctionCallNode implements Types.FunctionCallNode {
 export class IOOperationNode implements Types.IOOperationNode {
     constructor(
         public type: IOEmoji,
+        public value: Types.ExpressionCompatibleNodes,
         public position: Position
     ) {}
 

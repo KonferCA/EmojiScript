@@ -162,7 +162,12 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitIOOperation(node: Nodes.IOOperationNode): string {
-        return "";
+        const builder: string[] = [
+            typeof window !== "undefined" ? "window.alert(" : "console.log(",
+            node.value.accept(this),
+            ")",
+        ];
+        return builder.join("");
     }
 
     visitIndexExpression(node: Nodes.IndexExpressionNode): string {

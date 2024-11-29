@@ -160,6 +160,7 @@ export interface FunctionCallNode extends Node {
 
 export interface IOOperationNode extends Node {
     type: IOEmoji;
+    value: ExpressionCompatibleNodes;
     position: Position;
 }
 
