@@ -26,29 +26,33 @@ data_push = number | string | boolean | array
 number = emoji_digit+
 emoji_digit = "0️⃣" | "1️⃣" | "2️⃣" | "3️⃣" | "4️⃣" | "5️⃣" | "6️⃣" | "7️⃣" | "8️⃣" | "9️⃣"
 
-string = emoji_char* "📋"
+string = "📋" emoji_char* "📋"
 
 boolean = "✅" | "❌"
 
 array = "📦" expression* "📦"
+array_indexing = var "🔎" number
 
-operation = math_op | stack_op | comparison_op
+operation = math_op | comparison_op
 
 math_op = "➕" | "➖" | "✖️" | "➗"
 
 comparison_op = "⬆️" | "⬇️" | "🎯" | "📈" | "📉" | "🚫"
 
-stack_op = "⬆️" | "⬇️" | "🔄" | "🔀"
+op = math_op | comparison_op
 
 control_flow = if_statement | loop | function
 
-if_statement = "🤔" comparison_expr statement* ["💭" statement*] "⏹️"
+if_statement = "🤔" expression "👉" statement* ["💭" statement*] "⏹️"
 
-comparison_expr = "🚧" expression comparison_op expression "🚧" | boolean
+expression = expression op expression | "🚧" expression "🚧" | literal | func_call | var | array_indexing
 
-expression = number | string | boolean | array | operation | array_expression "👉" emoji_digit+ | emoji_char+
+func_call = "🫑" emoji_chars+ "🍴" parameters "🍴"
 
-loop = "🔁" statement* "⏹️"
+parameters = expression | expression "🌚" parameter'
+parameter' = expression | E
+
+loop = "🔁" expression "👉" statement* "⏹️"
 
 function = "📎" emoji_char* "👉" statement* "⏹️"
 
