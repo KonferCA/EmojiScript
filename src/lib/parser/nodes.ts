@@ -7,7 +7,6 @@ type Position = {
 };
 
 import type {
-    ControlFlowEmoji,
     IOEmoji,
     MathOperatorEmoji,
     RelationalEmoji,
@@ -135,36 +134,6 @@ export class MathOperationNode implements Types.MathOperationNode {
 
     debug(visitor: NodeVisitor): string {
         return visitor.debugMathOperation(this);
-    }
-}
-
-export class ComparisonOperationNode implements Types.ComparisonOperationNode {
-    constructor(
-        public operator: RelationalEmoji,
-        public position: Position
-    ) {}
-
-    accept(visitor: NodeVisitor): string {
-        return visitor.visitComparisonOperation(this);
-    }
-
-    debug(visitor: NodeVisitor): string {
-        return visitor.debugComparisonOperation(this);
-    }
-}
-
-export class StackOperationNode implements Types.StackOperationNode {
-    constructor(
-        public operator: ControlFlowEmoji,
-        public position: Position
-    ) {}
-
-    accept(visitor: NodeVisitor): string {
-        return visitor.visitStackOperation(this);
-    }
-
-    debug(visitor: NodeVisitor): string {
-        return visitor.debugStackOperation(this);
     }
 }
 
