@@ -34,7 +34,7 @@ export interface NodeVisitor {
     visitFunctionDefinition(node: FunctionDefinitionNode): string;
     visitIOOperation(node: IOOperationNode): string;
     visitIndexExpression(node: IndexExpressionNode): string;
-    visitComparisonExpression(node: ComparisonExpressionNode): string;
+    visitExpression(node: ExpressionNode): string;
 
     // DEBUGGING
     debugProgram(node: ProgramNode): string;
@@ -52,7 +52,7 @@ export interface NodeVisitor {
     debugFunctionDefinition(node: FunctionDefinitionNode): string;
     debugIOOperation(node: IOOperationNode): string;
     debugIndexExpression(node: IndexExpressionNode): string;
-    debugComparisonExpression(node: ComparisonExpressionNode): string;
+    debugExpression(node: ExpressionNode): string;
 }
 
 export interface AST {
@@ -116,16 +116,28 @@ export interface StackOperationNode extends Node {
 }
 
 export interface IfStatementNode extends Node {
-    condition: ComparisonExpressionNode;
+    condition: ExpressionNode;
     consequent: Node[];
     alternative?: Node[];
     position: Position;
 }
 
-export interface ComparisonExpressionNode extends Node {
-    left: Node;
-    operator: ComparisonOperationNode;
-    right: Node;
+export interface ExpressionNode extends Node {
+    left:
+        | NumberLiteralNode
+        | StringLiteralNode
+        | BooleanLiteralNode
+        | IndexExpressionNode
+        | ExpressionNode;
+    operator: RelationalEmoji | MathOperatorEmoji | null;
+    right:
+        | NumberLiteralNode
+        | StringLiteralNode
+        | BooleanLiteralNode
+        | IndexExpressionNode
+        | ExpressionNode
+        | null;
+    setParenthesis: boolean;
     position: Position;
 }
 

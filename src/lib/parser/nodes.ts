@@ -124,6 +124,8 @@ export class IdentifierNode implements Types.IdentifierNode {
 export class MathOperationNode implements Types.MathOperationNode {
     constructor(
         public operator: MathOperatorEmoji,
+        public lhs: Node,
+        public rhs: Node,
         public position: Position
     ) {}
 
@@ -168,7 +170,7 @@ export class StackOperationNode implements Types.StackOperationNode {
 
 export class IfStatementNode implements Types.IfStatementNode {
     constructor(
-        public condition: Types.ComparisonExpressionNode,
+        public condition: Types.ExpressionNode,
         public consequent: Node[],
         public alternative: Node[] | undefined,
         public position: Position
@@ -183,22 +185,21 @@ export class IfStatementNode implements Types.IfStatementNode {
     }
 }
 
-export class ComparisonExpressionNode
-    implements Types.ComparisonExpressionNode
-{
+export class ExpressionNode implements Types.ExpressionNode {
     constructor(
         public left: Node,
-        public operator: ComparisonOperationNode,
-        public right: Node,
+        public operator: RelationalEmoji | MathOperatorEmoji | null,
+        public right: Node | null,
+        public setParenthesis: boolean,
         public position: Position
     ) {}
 
     accept(visitor: NodeVisitor): string {
-        return visitor.visitComparisonExpression(this);
+        return visitor.visitExpression(this);
     }
 
     debug(visitor: NodeVisitor): string {
-        return visitor.debugComparisonExpression(this);
+        return visitor.debugExpression(this);
     }
 }
 
