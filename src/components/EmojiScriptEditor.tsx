@@ -14,6 +14,8 @@ const EmojiScriptEditor = () => {
 
     const handleInput: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
         const result = fuseRef.current.search(e.target.value);
+        // TODO: add a emoji suggester component, like when IDE suggests functions
+        // but for possible emoji matches
         console.log(result);
         setCode(e.target.value);
     };
