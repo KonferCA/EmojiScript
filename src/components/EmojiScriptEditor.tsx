@@ -1,11 +1,20 @@
-import { ChangeEventHandler, useState } from "react";
+import { ChangeEventHandler, useRef, useState } from "react";
 import { Card } from "./Card";
 import { Button } from "./Button";
+import Fuse from "fuse.js";
+import { emojiList } from "@/lib/emojiList";
 
 const EmojiScriptEditor = () => {
     const [code, setCode] = useState("");
+    const fuseRef = useRef(
+        new Fuse(emojiList, {
+            keys: ["name"],
+        })
+    );
 
     const handleInput: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
+        const result = fuseRef.current.search(e.target.value);
+        console.log(result);
         setCode(e.target.value);
     };
 
