@@ -53,9 +53,6 @@ export class ASTVisitor implements NodeVisitor {
 
     visitVariableDeclaration(node: Nodes.VariableDeclarationNode): string {
         const identStr = node.name.accept(this);
-        if (this.symbolTable.lookup(identStr)) {
-            throw new Error("⚡️🎯🤖❓💥");
-        }
         const valueStr = node.value.accept(this);
         this.symbolTable.define(identStr, valueStr);
         return `let ${identStr}=${valueStr}`;
