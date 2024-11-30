@@ -9,6 +9,7 @@ import { Card } from "./Card";
 import { Button } from "./Button";
 import Fuse from "fuse.js";
 import { emojiList, EmojiObject } from "@/lib/emojiList";
+import { ControlFlowEmojis } from "@/lib/emojiConstants";
 
 const EmojiScriptEditor = () => {
     const [code, setCode] = useState("");
@@ -115,7 +116,7 @@ const EmojiScriptEditor = () => {
                 onChange={handleInput}
                 onKeyDown={handleKeyDown}
                 className="w-full h-64 p-4 font-mono text-lg bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="Start typing and the editor will transform everything into emojis!"
+                placeholder="Type : to start emojiscripting!"
                 rows={10}
             ></textarea>
             {suggestions.length > 0 && (
@@ -132,6 +133,20 @@ const EmojiScriptEditor = () => {
                     ))}
                 </div>
             )}
+            <div className="mt-4">
+                <p className="text-lg font-bold">How to EmojiScript{"❓"}</p>
+                <p>
+                    Start by typing : to search for key emojis such as {'"if"'}{" "}
+                    to find {ControlFlowEmojis.IF} which represents an if
+                    statement in EmojiScript.
+                </p>
+                <p>
+                    Use the arrow up/down keys to navigate through the list of
+                    emojis.
+                </p>
+                <p>Press enter to select the highlighted emoji.</p>
+                <p>Awesome, now you are EmojiScript-ing{"‼️"}</p>
+            </div>
             <div className="mt-4">
                 <Button text="Clear" onClick={() => setCode("")} />
             </div>
