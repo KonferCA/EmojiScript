@@ -4,7 +4,7 @@
  *
  */
 
-import { NumberLiteralNode, ProgramNode } from "../parser/nodes";
+import { ProgramNode } from "../parser/nodes";
 import { ASTVisitor } from "../parser/astVisitor";
 
 /*
