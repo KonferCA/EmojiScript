@@ -1,4 +1,6 @@
-export const emojiList = [
+export type EmojiObject = { name: string; emoji: string };
+
+export const emojiList: EmojiObject[] = [
     { name: "grinning_face", emoji: "😀" },
     { name: "grinning_face_with_big_eyes", emoji: "😃" },
     { name: "grinning_face_with_smiling_eyes", emoji: "😄" },
@@ -121,7 +123,6 @@ export const emojiList = [
     { name: "crying_cat", emoji: "😿" },
     { name: "pouting_cat", emoji: "😾" },
     { name: "heart_hands", emoji: "🫶" },
-    { name: "heart_hands_of_different_skin_tones", emoji: "🫶🏻🫶🏼🫶🏽🫶🏾🫶🏿" },
     { name: "waving_hand", emoji: "👋" },
     { name: "raised_back_of_hand", emoji: "🤚" },
     { name: "hand_with_fingers_splayed", emoji: "🖐️" },
@@ -155,7 +156,6 @@ export const emojiList = [
     { name: "right_facing_fist", emoji: "🤜" },
     { name: "clapping_hands", emoji: "👏" },
     { name: "raising_hands", emoji: "🙌" },
-    { name: "heart_hands", emoji: "🫶" },
     { name: "open_hands", emoji: "👐" },
     { name: "palms_up_together", emoji: "🤲" },
     { name: "handshake", emoji: "🤝" },
