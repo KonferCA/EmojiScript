@@ -11,10 +11,10 @@ import {
 import type { Node } from "@/lib/parser/types";
 
 describe("Test If Statement Node", () => {
-    const visitor = new ASTVisitor();
     const position = { line: 0, column: 0 };
 
     it("should create if statement", () => {
+        const visitor = new ASTVisitor();
         const condition = new ExpressionNode(
             new BooleanLiteralNode(true, position),
             null,
@@ -45,6 +45,7 @@ describe("Test If Statement Node", () => {
     });
 
     it("should create if statement with else", () => {
+        const visitor = new ASTVisitor();
         const condition = new ExpressionNode(
             new BooleanLiteralNode(true, position),
             null,
