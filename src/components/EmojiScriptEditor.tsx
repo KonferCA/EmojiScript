@@ -112,28 +112,37 @@ const EmojiScriptEditor = () => {
     return (
         <Card>
             <div className="flex justify-between items-baseline">
-                <h1 className="text-lg font-bold mb-4">EmojiScript Editor</h1>
-                <Button text="Run" onClick={runEmojiScript} />
+                <h1 className="text-lg font-bold mb-4">
+                    {"EmojiScript Editor 🧑‍💻"}
+                </h1>
+                <div className="flex items-baseline gap-4">
+                    <Button text="Clear" onClick={() => setCode("")} />
+                    <Button
+                        text="Run 🚀"
+                        className="border-green-500 hover:bg-green-800 text-green-500 active:bg-green-900"
+                        onClick={runEmojiScript}
+                    />
+                </div>
             </div>
             <textarea
                 ref={textareaRef}
                 value={code}
                 onChange={handleInput}
                 onKeyDown={handleKeyDown}
-                className="w-full h-64 p-4 font-mono text-lg bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="Type : to start emojiscripting!"
+                className="w-full h-64 p-4 font-mono text-lg bg-gray-600 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-300"
+                placeholder="Type : to start EmojiScript-ing!"
                 rows={10}
             ></textarea>
             {suggestions.length > 0 && (
-                <div className="mt-1 bg-white border rounded shadow-lg">
+                <div className="mt-1 bg-gray-800 border rounded">
                     {suggestions.map((item, idx) => (
                         <button
                             key={item.name}
                             onClick={() => handleSelect(idx)}
-                            className={`w-full px-4 py-2 text-left flex items-center space-x-2 ${idx === selectedIndex ? "bg-blue-50" : "hover:bg-gray-100"}`}
+                            className={`w-full px-4 py-2 text-left flex items-center space-x-2 ${idx === selectedIndex ? "bg-gray-700" : "hover:bg-gray-600"}`}
                         >
                             <span>{item.emoji}</span>
-                            <span className="text-gray-600">{item.name}</span>
+                            <span>{item.name}</span>
                         </button>
                     ))}
                 </div>
@@ -151,9 +160,6 @@ const EmojiScriptEditor = () => {
                 </p>
                 <p>Press enter to select the highlighted emoji.</p>
                 <p>Awesome, now you are EmojiScript-ing{"‼️"}</p>
-            </div>
-            <div className="mt-4">
-                <Button text="Clear" onClick={() => setCode("")} />
             </div>
         </Card>
     );
