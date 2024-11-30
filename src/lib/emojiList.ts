@@ -1,6 +1,115 @@
+import {
+    BooleanEmojis,
+    ControlFlowEmojis,
+    DataTypeEmojis,
+    IOEmojis,
+    MathOperatorEmojis,
+    NumberEmojis,
+    ProgrammingEmojis,
+    RelationalEmojis,
+    StringEmojis,
+} from "./emojiConstants";
+
 export type EmojiObject = { name: string; emoji: string };
 
 export const emojiList: EmojiObject[] = [
+    // data type keywords
+    { name: "string_type", emoji: DataTypeEmojis.STRING },
+    { name: "boolean_type", emoji: DataTypeEmojis.BOOLEAN },
+    { name: "number_type", emoji: DataTypeEmojis.NUMBER },
+    { name: "array_type", emoji: DataTypeEmojis.ARRAY },
+    { name: "[]", emoji: DataTypeEmojis.ARRAY },
+
+    // literal values
+    // boolean
+    { name: "true", emoji: BooleanEmojis.TRUE },
+    { name: "false", emoji: BooleanEmojis.FALSE },
+    // number
+    { name: "0", emoji: NumberEmojis.ZERO },
+    { name: "1", emoji: NumberEmojis.ONE },
+    { name: "2", emoji: NumberEmojis.TWO },
+    { name: "3", emoji: NumberEmojis.THREE },
+    { name: "4", emoji: NumberEmojis.FOUR },
+    { name: "5", emoji: NumberEmojis.FIVE },
+    { name: "6", emoji: NumberEmojis.SIX },
+    { name: "7", emoji: NumberEmojis.SEVEN },
+    { name: "8", emoji: NumberEmojis.EIGHT },
+    { name: "9", emoji: NumberEmojis.NINE },
+    { name: "zero", emoji: NumberEmojis.ZERO },
+    { name: "one", emoji: NumberEmojis.ONE },
+    { name: "two", emoji: NumberEmojis.TWO },
+    { name: "three", emoji: NumberEmojis.THREE },
+    { name: "four", emoji: NumberEmojis.FOUR },
+    { name: "five", emoji: NumberEmojis.FIVE },
+    { name: "six", emoji: NumberEmojis.SIX },
+    { name: "seven", emoji: NumberEmojis.SEVEN },
+    { name: "eight", emoji: NumberEmojis.EIGHT },
+    { name: "nine", emoji: NumberEmojis.NINE },
+
+    // string
+    { name: '"', emoji: StringEmojis.QUOTE },
+    { name: "'", emoji: StringEmojis.QUOTE },
+    { name: "quote", emoji: StringEmojis.QUOTE },
+
+    // operators
+    { name: "+", emoji: MathOperatorEmojis.ADD },
+    { name: "add", emoji: MathOperatorEmojis.ADD },
+    { name: "plus", emoji: MathOperatorEmojis.ADD },
+    { name: "-", emoji: MathOperatorEmojis.SUBTRACT },
+    { name: "minus", emoji: MathOperatorEmojis.SUBTRACT },
+    { name: "subtract", emoji: MathOperatorEmojis.SUBTRACT },
+    { name: "*", emoji: MathOperatorEmojis.MULTIPLY },
+    { name: "x", emoji: MathOperatorEmojis.MULTIPLY },
+    { name: "multiply", emoji: MathOperatorEmojis.MULTIPLY },
+    { name: "/", emoji: MathOperatorEmojis.DIVIDE },
+    { name: "divide", emoji: MathOperatorEmojis.DIVIDE },
+
+    // relationals
+    { name: "==", emoji: RelationalEmojis.EQUAL },
+    { name: "equal", emoji: RelationalEmojis.EQUAL },
+    { name: ">", emoji: RelationalEmojis.GREATER },
+    { name: "greater", emoji: RelationalEmojis.GREATER },
+    { name: ">=", emoji: RelationalEmojis.GREATER_OR_EQUAL },
+    { name: "greater_or_equal", emoji: RelationalEmojis.GREATER_OR_EQUAL },
+    { name: "<", emoji: RelationalEmojis.LESS },
+    { name: "less", emoji: RelationalEmojis.LESS },
+    { name: "<=", emoji: RelationalEmojis.LESS_OR_EQUAL },
+    { name: "less_or_equal", emoji: RelationalEmojis.LESS_OR_EQUAL },
+    { name: "!", emoji: RelationalEmojis.NOT },
+    { name: "not", emoji: RelationalEmojis.NOT },
+    { name: "and", emoji: RelationalEmojis.AND },
+    { name: "&&", emoji: RelationalEmojis.AND },
+    { name: "or", emoji: RelationalEmojis.OR },
+    { name: "||", emoji: RelationalEmojis.OR },
+
+    // control flows
+    { name: "loop", emoji: ControlFlowEmojis.LOOP },
+    { name: "if", emoji: ControlFlowEmojis.IF },
+    { name: "then", emoji: ControlFlowEmojis.IF_THEN },
+    { name: "else", emoji: ControlFlowEmojis.ELSE },
+    { name: "stop", emoji: ControlFlowEmojis.STOP },
+    { name: "parenthesis", emoji: ControlFlowEmojis.PRECEDENCE },
+    { name: "()", emoji: ControlFlowEmojis.PRECEDENCE },
+
+    // common programming
+    { name: "function", emoji: ProgrammingEmojis.FUNCTION_DEF },
+    { name: "pointer", emoji: ProgrammingEmojis.POINTER },
+    { name: "index", emoji: ProgrammingEmojis.INDEXING },
+    { name: "at", emoji: ProgrammingEmojis.INDEXING },
+    { name: "@", emoji: ProgrammingEmojis.INDEXING },
+    { name: "assign", emoji: ProgrammingEmojis.ASSIGNMENT },
+    { name: "=", emoji: ProgrammingEmojis.ASSIGNMENT },
+    { name: ",", emoji: ProgrammingEmojis.COMMA },
+    { name: "comma", emoji: ProgrammingEmojis.COMMA },
+
+    // io
+    { name: "print", emoji: IOEmojis.PRINT },
+    { name: "log", emoji: IOEmojis.PRINT },
+    { name: "say", emoji: IOEmojis.PRINT },
+    { name: "alert", emoji: IOEmojis.PRINT },
+
+    // just emojis
+    { name: "memo", emoji: "📝" },
     { name: "grinning_face", emoji: "😀" },
     { name: "grinning_face_with_big_eyes", emoji: "😃" },
     { name: "grinning_face_with_smiling_eyes", emoji: "😄" },

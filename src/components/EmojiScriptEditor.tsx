@@ -30,11 +30,13 @@ const EmojiScriptEditor = () => {
         switch (e.key) {
             case "ArrowDown":
                 if (suggestions.length) {
+                    e.preventDefault();
                     setSelectedIndex((c) => (c + 1) % suggestions.length);
                 }
                 break;
             case "ArrowUp":
                 if (suggestions.length) {
+                    e.preventDefault();
                     setSelectedIndex((c) =>
                         c > 0 ? c - 1 : suggestions.length - 1
                     );
