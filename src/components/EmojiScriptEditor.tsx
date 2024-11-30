@@ -79,6 +79,8 @@ const EmojiScriptEditor = () => {
         }
     };
 
+    const runEmojiScript = () => {};
+
     useEffect(() => {
         const cursorPos = textareaRef.current?.selectionStart || 0;
         const textBeforeCursor = code.slice(0, cursorPos);
@@ -109,7 +111,10 @@ const EmojiScriptEditor = () => {
 
     return (
         <Card>
-            <h1 className="text-lg font-bold mb-4">EmojiScript Editor</h1>
+            <div className="flex justify-between items-baseline">
+                <h1 className="text-lg font-bold mb-4">EmojiScript Editor</h1>
+                <Button text="Run" onClick={runEmojiScript} />
+            </div>
             <textarea
                 ref={textareaRef}
                 value={code}
