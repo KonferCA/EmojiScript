@@ -1,15 +1,25 @@
-import { Link } from 'react-router-dom';
+import { EmojiScriptEditor } from "@/components";
+import { useState } from "react";
+
+const emojiTitle = "🖥️👩‍💻👨‍💻👴‍💻👵‍💻👦‍💻👧‍💻📝🔮✨🎨🚀💫🌈🎯";
+const normalTitle = "EmojiScript - Made for EVERYONE";
 
 const Landing = () => {
+    const [title, setTitle] = useState(normalTitle);
+
     return (
-        <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col items-center justify-center">
-            <h1 className="text-4xl font-bold mb-8">EmojiScript</h1>
-            <Link 
-                to="/lexer" 
-                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        <div className="space-y-4">
+            <h1
+                className="text-center text-xl font-bold"
+                onMouseOver={() => setTitle(emojiTitle)}
+                onMouseLeave={() => setTitle(normalTitle)}
             >
-                Try the Lexer IDE →
-            </Link>
+                {title}
+            </h1>
+
+            <div className="p-4">
+                <EmojiScriptEditor />
+            </div>
         </div>
     );
 };
