@@ -79,7 +79,9 @@ const EmojiScriptEditor = () => {
         }
     };
 
-    const runEmojiScript = () => {};
+    const runEmojiScript = () => {
+        eval("alert('hello')");
+    };
 
     useEffect(() => {
         const cursorPos = textareaRef.current?.selectionStart || 0;

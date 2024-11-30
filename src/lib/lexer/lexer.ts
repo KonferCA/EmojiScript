@@ -5,10 +5,7 @@ import {
     IOEmojis,
     MathOperatorEmojis,
     NumberEmojis,
-    ProgrammingEmojis,
-    RelationalEmojis,
-    type ProgrammingSymbolEmoji
-} from '../emojiConstants';
+} from "../emojiConstants";
 
 // token types as specified in spec
 export enum TokenType {
@@ -79,12 +76,12 @@ export type Lexeme = {
     type: TokenType;
     literal: Literal;
     position: Position;
-}
+};
 
 export class Lexer {
     private position: number = 0;
     private readPosition: number = 0;
-    private char: string = '';
+    private char: string = "";
     private line: number = 1;
     private column: number = 0;
 
@@ -95,7 +92,7 @@ export class Lexer {
     // reads the next character and advances position
     private readChar(): void {
         if (this.readPosition >= this.input.length) {
-            this.char = '';
+            this.char = "";
         } else {
             this.char = this.input[this.readPosition];
         }
@@ -103,7 +100,7 @@ export class Lexer {
         this.readPosition++;
 
         // track position
-        if (this.char === '\n') {
+        if (this.char === "\n") {
             this.line++;
             this.column = 0;
         } else {
@@ -111,17 +108,22 @@ export class Lexer {
         }
     }
 
-    // peeks at next character without advancing
-    private peekChar(): string {
-        if (this.readPosition >= this.input.length) {
-            return '';
-        }
-        return this.input[this.readPosition];
-    }
+    // // peeks at next character without advancing
+    // private peekChar(): string {
+    //     if (this.readPosition >= this.input.length) {
+    //         return '';
+    //     }
+    //     return this.input[this.readPosition];
+    // }
 
     // skips whitespace
     private skipWhitespace(): void {
-        while (this.char === ' ' || this.char === '\t' || this.char === '\n' || this.char === '\r') {
+        while (
+            this.char === " " ||
+            this.char === "\t" ||
+            this.char === "\n" ||
+            this.char === "\r"
+        ) {
             this.readChar();
         }
     }
@@ -135,14 +137,17 @@ export class Lexer {
     private readEmoji(): string {
         const startPos = this.position;
         // read until we hit a non-emoji character or whitespace
-        while (this.position < this.input.length && !this.isWhitespace(this.char)) {
+        while (
+            this.position < this.input.length &&
+            !this.isWhitespace(this.char)
+        ) {
             this.readChar();
         }
         return this.input.slice(startPos, this.position);
     }
 
     private isWhitespace(char: string): boolean {
-        return char === ' ' || char === '\t' || char === '\n' || char === '\r';
+        return char === " " || char === "\t" || char === "\n" || char === "\r";
     }
 
     // checks if we've reached the end
@@ -174,8 +179,12 @@ export class Lexer {
     public next(): Lexeme {
         this.skipWhitespace();
 
-        if (this.char === '') {
-            return { type: TokenType.EOF, literal: null, position: this.currentPosition() };
+        if (this.char === "") {
+            return {
+                type: TokenType.EOF,
+                literal: null,
+                position: this.currentPosition(),
+            };
         }
 
         const emoji = this.readEmoji();
@@ -183,84 +192,160 @@ export class Lexer {
 
         // check for number emojis
         if (Object.values(NumberEmojis).includes(emoji as any)) {
-            return { type: TokenType.Number, literal: this.emojiToNumber(emoji), position: pos };
+            return {
+                type: TokenType.Number,
+                literal: this.emojiToNumber(emoji),
+                position: pos,
+            };
         }
 
         // check for data types
         switch (emoji) {
             case DataTypeEmojis.NUMBER:
-                return { type: TokenType.NumberType, literal: emoji, position: pos };
+                return {
+                    type: TokenType.NumberType,
+                    literal: emoji,
+                    position: pos,
+                };
             case DataTypeEmojis.STRING:
-                return { type: TokenType.StringType, literal: emoji, position: pos };
+                return {
+                    type: TokenType.StringType,
+                    literal: emoji,
+                    position: pos,
+                };
             case DataTypeEmojis.BOOLEAN:
-                return { type: TokenType.BooleanType, literal: emoji, position: pos };
+                return {
+                    type: TokenType.BooleanType,
+                    literal: emoji,
+                    position: pos,
+                };
             case DataTypeEmojis.ARRAY:
-                return { type: TokenType.ArrayType, literal: emoji, position: pos };
+                return {
+                    type: TokenType.ArrayType,
+                    literal: emoji,
+                    position: pos,
+                };
         }
 
         // check for boolean values
         switch (emoji) {
             case BooleanEmojis.TRUE:
             case BooleanEmojis.FALSE:
-                return { type: TokenType.Boolean, literal: emoji === BooleanEmojis.TRUE, position: pos };
+                return {
+                    type: TokenType.Boolean,
+                    literal: emoji === BooleanEmojis.TRUE,
+                    position: pos,
+                };
         }
 
         // check for math operators
         switch (emoji) {
             case MathOperatorEmojis.ADD:
-                return { type: TokenType.AdditionOp, literal: emoji, position: pos };
+                return {
+                    type: TokenType.AdditionOp,
+                    literal: emoji,
+                    position: pos,
+                };
             case MathOperatorEmojis.SUBTRACT:
-                return { type: TokenType.SubtractionOp, literal: emoji, position: pos };
+                return {
+                    type: TokenType.SubtractionOp,
+                    literal: emoji,
+                    position: pos,
+                };
             case MathOperatorEmojis.MULTIPLY:
-                return { type: TokenType.MultiplicationOp, literal: emoji, position: pos };
+                return {
+                    type: TokenType.MultiplicationOp,
+                    literal: emoji,
+                    position: pos,
+                };
             case MathOperatorEmojis.DIVIDE:
-                return { type: TokenType.DivisionOp, literal: emoji, position: pos };
+                return {
+                    type: TokenType.DivisionOp,
+                    literal: emoji,
+                    position: pos,
+                };
         }
 
         // check for control flow
         switch (emoji) {
             case ControlFlowEmojis.IF:
                 return { type: TokenType.IfOp, literal: emoji, position: pos };
-            case ControlFlowEmojis.IF_THEN:  // Using IF_THEN for 💭
-                return { type: TokenType.ThinkOp, literal: emoji, position: pos };
+            case ControlFlowEmojis.IF_THEN: // Using IF_THEN for 💭
+                return {
+                    type: TokenType.ThinkOp,
+                    literal: emoji,
+                    position: pos,
+                };
             case ControlFlowEmojis.STOP:
-                return { type: TokenType.StopOp, literal: emoji, position: pos };
+                return {
+                    type: TokenType.StopOp,
+                    literal: emoji,
+                    position: pos,
+                };
         }
 
         // check for stack operations
         switch (emoji) {
-            case '⬆️':
-                return { type: TokenType.PushOp, literal: emoji, position: pos };
-            case '⬇️':
+            case "⬆️":
+                return {
+                    type: TokenType.PushOp,
+                    literal: emoji,
+                    position: pos,
+                };
+            case "⬇️":
                 return { type: TokenType.PopOp, literal: emoji, position: pos };
-            case '🔄':
-                return { type: TokenType.RotateOp, literal: emoji, position: pos };
-            case '🔀':
-                return { type: TokenType.ShuffleOp, literal: emoji, position: pos };
+            case "🔄":
+                return {
+                    type: TokenType.RotateOp,
+                    literal: emoji,
+                    position: pos,
+                };
+            case "🔀":
+                return {
+                    type: TokenType.ShuffleOp,
+                    literal: emoji,
+                    position: pos,
+                };
         }
 
         // check for comparison operators
         switch (emoji) {
-            case '📈':
-                return { type: TokenType.IncreaseOp, literal: emoji, position: pos };
-            case '📉':
-                return { type: TokenType.DecreaseOp, literal: emoji, position: pos };
-            case '🚫':
-                return { type: TokenType.NotEqualOp, literal: emoji, position: pos };
+            case "📈":
+                return {
+                    type: TokenType.IncreaseOp,
+                    literal: emoji,
+                    position: pos,
+                };
+            case "📉":
+                return {
+                    type: TokenType.DecreaseOp,
+                    literal: emoji,
+                    position: pos,
+                };
+            case "🚫":
+                return {
+                    type: TokenType.NotEqualOp,
+                    literal: emoji,
+                    position: pos,
+                };
         }
 
         // check for barriers
-        if (emoji === '🚧') {
+        if (emoji === "🚧") {
             return { type: TokenType.BarrierOp, literal: emoji, position: pos };
         }
 
         // check for construction operator
-        if (emoji === '👉') {
-            return { type: TokenType.ConstructOp, literal: emoji, position: pos };
+        if (emoji === "👉") {
+            return {
+                type: TokenType.ConstructOp,
+                literal: emoji,
+                position: pos,
+            };
         }
 
         // check for function definition
-        if (emoji === '📎') {
+        if (emoji === "📎") {
             return { type: TokenType.FuncDef, literal: emoji, position: pos };
         }
 
@@ -268,8 +353,8 @@ export class Lexer {
         switch (emoji) {
             case IOEmojis.PRINT:
                 return { type: TokenType.Print, literal: emoji, position: pos };
-            case IOEmojis.READ_INPUT:
-                return { type: TokenType.Read, literal: emoji, position: pos };
+            // case IOEmojis.READ_INPUT:
+            //     return { type: TokenType.Read, literal: emoji, position: pos };
         }
 
         // check if it's a regular text identifier
