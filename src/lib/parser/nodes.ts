@@ -1,10 +1,4 @@
-// TODO: Gestring imported position when lexer is merged in
-// import { Position } from '../lexer/idk yet';
-// temp solution
-type Position = {
-    line: number;
-    column: number;
-};
+import { Position } from '../lexer/lexer';
 
 import type {
     IOEmoji,
