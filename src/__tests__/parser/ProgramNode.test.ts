@@ -96,7 +96,7 @@ describe("Test Program Node", () => {
             ),
         ];
         const n = new ProgramNode(statements, position);
-        const expectedStr = `function max(a,b){if(a>b){window.alert(a)}else{window.alert(b)}};let x=1;let y=2;max(x,y)`;
+        const expectedStr = `function a(b,c){if(b>c){window.alert(b)}else{window.alert(c)}};let d=1;let e=2;a(d,e)`;
         const jsStr = n.accept(visitor);
         expect(jsStr).toEqual(expectedStr);
     });

@@ -1,17 +1,13 @@
-import { Lexer, TokenType, Position, Lexeme } from "../lexer/lexer";
+import { Lexer, TokenType, Lexeme } from "../lexer/lexer";
 import {
     AST,
     ParserError,
     ParserErrorType,
     Node,
     ExpressionCompatibleNodes,
-    IndexableNodes,
 } from "./types";
 import * as Nodes from "./nodes";
 import {
-    MathOperatorEmojis,
-    RelationalEmojis,
-    IOEmojis,
     type MathOperatorEmoji,
     type RelationalEmoji,
     type IOEmoji,
@@ -97,11 +93,39 @@ export class Parser {
     }
 
     private parseExpression(): ExpressionCompatibleNodes {
-        if (this.currentToken.type === TokenType.BarrierOp) {
-            return this.parseBarrierExpression();
+        if (
+            this.currentToken.type === TokenType.EOF ||
+            this.currentToken.type === TokenType.Illegal
+        ) {
+            throw new ParserError(
+                ParserErrorType.InvalidExpression,
+                `Unexpected end of tokens.`,
+                this.currentToken.position
+            );
         }
 
-        let left = this.parsePrimary();
+        let parenthesis = this.currentToken.type === TokenType.BarrierOp;
+        if (parenthesis) {
+            // consume parenthesis
+            this.advance();
+        }
+
+        let left: ExpressionCompatibleNodes;
+        switch (this.currentToken.type) {
+            case TokenType.Number:
+            case TokenType.String:
+            case TokenType.Boolean:
+            case TokenType.ArrayStart:
+            case TokenType.Emojis:
+                left = this.parsePrimary();
+                break;
+            case TokenType.FuncCallStart:
+                return this.parseFunctionCallStatement();
+            case TokenType.IndexingOp:
+                return this.parseIndexExpression();
+            default:
+                left = this.parseExpression();
+        }
 
         while (
             this.isMathOperator(this.currentToken.type) ||
@@ -113,29 +137,32 @@ export class Parser {
             const operatorPos = this.currentToken.position;
             this.advance();
 
-            const right = this.parsePrimary();
+            let right: ExpressionCompatibleNodes;
+            switch (this.currentToken.type) {
+                case TokenType.Number:
+                case TokenType.String:
+                case TokenType.Boolean:
+                case TokenType.ArrayStart:
+                    right = this.parsePrimary();
+                    break;
+                default:
+                    right = this.parseExpression();
+            }
 
             left = new Nodes.ExpressionNode(
                 left,
                 operator,
                 right,
-                false,
+                parenthesis,
                 operatorPos
             );
         }
+        if (parenthesis) {
+            // consume parenthesis
+            this.expect(TokenType.BarrierOp);
+        }
 
         return left;
-    }
-
-    private parseBarrierExpression(): ExpressionCompatibleNodes {
-        const position = this.currentToken.position;
-        this.advance(); // consume opening barrier
-
-        const expr = this.parseExpression();
-
-        this.expect(TokenType.BarrierOp);
-
-        return new Nodes.ExpressionNode(expr, null, null, true, position);
     }
 
     private parsePrimary(): ExpressionCompatibleNodes {
@@ -169,10 +196,6 @@ export class Parser {
                     token.literal as string,
                     token.position
                 );
-                // Check for function call
-                if (this.currentToken.type === TokenType.FuncCallStart) {
-                    return this.parseFunctionCall(identifier);
-                }
                 return identifier;
             default:
                 throw new ParserError(
@@ -321,6 +344,7 @@ export class Parser {
         const identifier = this.parseIdentifier();
 
         const parameters: ExpressionCompatibleNodes[] = [];
+        this.expect(TokenType.ThenOp);
         while (
             this.currentToken.type !== TokenType.FuncCallEnd &&
             this.currentToken.type !== TokenType.EOF
@@ -372,18 +396,9 @@ export class Parser {
             );
         }
 
-        // grap the entire identifier name for names longer than 1 emoji
-        const name: string[] = [this.currentToken.literal as string];
-        this.advance(); // consume current emoji
-        while (this.currentToken.type === TokenType.Emojis) {
-            name.push(this.currentToken.literal as string);
-            this.advance();
-        }
+        const ident = this.parseIdentifier();
 
-        const ident = new Nodes.IdentifierNode(
-            name.join(""),
-            this.currentToken.position
-        );
+        this.expect(TokenType.ThenOp);
 
         const value = this.parseExpression();
         return new Nodes.VariableDeclarationNode(ident, value, position);
@@ -394,6 +409,9 @@ export class Parser {
         this.advance(); // consume assignment operator
 
         const identifier = this.parseIdentifier();
+
+        this.expect(TokenType.ThenOp);
+
         const value = this.parseExpression();
 
         return new Nodes.AssignmentNode(identifier, value, position);
@@ -491,11 +509,18 @@ export class Parser {
             );
         }
 
+        const name: string[] = [this.currentToken.literal as string];
+        this.advance();
+        while (this.currentToken.type === TokenType.Emojis) {
+            name.push(this.currentToken.literal as string);
+            this.advance();
+        }
+
         const identifier = new Nodes.IdentifierNode(
-            this.currentToken.literal as string,
+            name.join(""),
             this.currentToken.position
         );
-        this.advance();
+
         return identifier;
     }
 

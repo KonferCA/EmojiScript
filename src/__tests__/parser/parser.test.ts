@@ -21,8 +21,12 @@ import {
 import {
     ArrayEmojis,
     BooleanEmojis,
+    ControlFlowEmojis,
+    IOEmojis,
+    MathOperatorEmojis,
     NumberEmojis,
     ProgrammingEmojis,
+    RelationalEmojis,
     StringEmojis,
 } from "@/lib/emojiConstants";
 
@@ -44,6 +48,7 @@ describe("Parser", () => {
                 "🍉",
                 "🍉",
                 "🍉",
+                ProgrammingEmojis.POINTER,
                 NumberEmojis.ONE,
             ].join(" ");
             const ast = parse(input);
@@ -60,6 +65,7 @@ describe("Parser", () => {
                 "🍉",
                 "🍉",
                 "🍉",
+                ProgrammingEmojis.POINTER,
                 ArrayEmojis.START,
                 StringEmojis.QUOTE,
                 "🍉",
@@ -84,6 +90,7 @@ describe("Parser", () => {
         it("should return invalid ast if identifier not given", () => {
             const input = [
                 ProgrammingEmojis.VAR_DECLARATION,
+                ProgrammingEmojis.POINTER,
                 NumberEmojis.ONE,
             ].join(" ");
             const ast = parse(input);
@@ -96,9 +103,38 @@ describe("Parser", () => {
                 "🍉",
                 "🍉",
                 "🍉",
+                ProgrammingEmojis.POINTER,
             ].join(" ");
             const ast = parse(input);
             expect(ast.isValid).toBeFalsy();
+        });
+
+        it("should parse assignment with literal", () => {
+            const input = [
+                ProgrammingEmojis.ASSIGNMENT,
+                "🍉",
+                "🍉",
+                ProgrammingEmojis.POINTER,
+                NumberEmojis.ONE,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements).toHaveLength(1);
+            expect(ast.program.statements[0]).toBeInstanceOf(AssignmentNode);
+        });
+
+        it("should parse assignment with variable", () => {
+            const input = [
+                ProgrammingEmojis.ASSIGNMENT,
+                "🍉",
+                "🍉",
+                ProgrammingEmojis.POINTER,
+                "🍉",
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements).toHaveLength(1);
+            expect(ast.program.statements[0]).toBeInstanceOf(AssignmentNode);
         });
     });
 
@@ -209,343 +245,416 @@ describe("Parser", () => {
                 }
             });
         });
+
+        it("should parse a math expression", () => {
+            const input = [
+                NumberEmojis.ONE,
+                MathOperatorEmojis.ADD,
+                NumberEmojis.TWO,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements).toHaveLength(1);
+            expect(ast.program.statements[0]).toBeInstanceOf(ExpressionNode);
+            const expr = ast.program.statements[0] as ExpressionNode;
+            expect(expr.left).toBeInstanceOf(NumberLiteralNode);
+            expect(expr.operator).toEqual(MathOperatorEmojis.ADD);
+            expect(expr.right).toBeInstanceOf(NumberLiteralNode);
+        });
+
+        it("should parse a relational expression", () => {
+            const input = [
+                NumberEmojis.ONE,
+                RelationalEmojis.GREATER,
+                NumberEmojis.TWO,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements).toHaveLength(1);
+            expect(ast.program.statements[0]).toBeInstanceOf(ExpressionNode);
+            const expr = ast.program.statements[0] as ExpressionNode;
+            expect(expr.left).toBeInstanceOf(NumberLiteralNode);
+            expect(expr.operator).toEqual(RelationalEmojis.GREATER);
+            expect(expr.right).toBeInstanceOf(NumberLiteralNode);
+        });
+
+        it("should parse a expression and respect precedence", () => {
+            const input = [
+                NumberEmojis.ONE,
+                RelationalEmojis.GREATER,
+                ControlFlowEmojis.PRECEDENCE,
+                NumberEmojis.TWO,
+                MathOperatorEmojis.ADD,
+                NumberEmojis.TWO,
+                ControlFlowEmojis.PRECEDENCE,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements).toHaveLength(1);
+            expect(ast.program.statements[0]).toBeInstanceOf(ExpressionNode);
+            const expr = ast.program.statements[0] as ExpressionNode;
+            expect(expr.left).toBeInstanceOf(NumberLiteralNode);
+            expect(expr.operator).toEqual(RelationalEmojis.GREATER);
+            expect(expr.right).toBeInstanceOf(ExpressionNode);
+            const right = expr.right as ExpressionNode;
+            expect(right.setParenthesis).toBeTruthy();
+            expect(right.left).toBeInstanceOf(NumberLiteralNode);
+            expect(right.operator).toEqual(MathOperatorEmojis.ADD);
+            expect(right.right).toBeInstanceOf(NumberLiteralNode);
+        });
+
+        it("should parse identifiers", () => {
+            const input = "🍉";
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements[0]).toBeInstanceOf(IdentifierNode);
+            expect(ast.program.statements).toHaveLength(1);
+        });
+
+        it("should parse function call without parameters", () => {
+            const input = [
+                ProgrammingEmojis.FUNCTION_CALL_START,
+                "🍉",
+                ProgrammingEmojis.POINTER,
+                ProgrammingEmojis.FUNCTION_CALL_END,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements[0]).toBeInstanceOf(FunctionCallNode);
+            expect(ast.program.statements).toHaveLength(1);
+            const foo = ast.program.statements[0] as FunctionCallNode;
+            expect(foo.name).toBeInstanceOf(IdentifierNode);
+            expect(foo.name.name).toBe("🍉");
+            expect(foo.parameters).toHaveLength(0);
+        });
+
+        it("should parse function calls", () => {
+            const input = [
+                ProgrammingEmojis.FUNCTION_CALL_START,
+                "🍉",
+                ProgrammingEmojis.POINTER,
+                NumberEmojis.ONE,
+                ProgrammingEmojis.FUNCTION_CALL_END,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements[0]).toBeInstanceOf(FunctionCallNode);
+            expect(ast.program.statements).toHaveLength(1);
+            const foo = ast.program.statements[0] as FunctionCallNode;
+            expect(foo.name).toBeInstanceOf(IdentifierNode);
+            expect(foo.name.name).toBe("🍉");
+        });
+
+        it("should parse nested function calls", () => {
+            const input = [
+                ProgrammingEmojis.FUNCTION_CALL_START,
+                "🍉",
+                ProgrammingEmojis.POINTER,
+                ProgrammingEmojis.FUNCTION_CALL_START,
+                "🍉",
+                ProgrammingEmojis.POINTER,
+                ProgrammingEmojis.FUNCTION_CALL_END,
+                ProgrammingEmojis.FUNCTION_CALL_END,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements[0]).toBeInstanceOf(FunctionCallNode);
+            expect(ast.program.statements).toHaveLength(1);
+            const foo = ast.program.statements[0] as FunctionCallNode;
+            expect(foo.parameters).toHaveLength(1);
+            expect(foo.parameters[0]).toBeInstanceOf(FunctionCallNode);
+            expect(foo.name).toBeInstanceOf(IdentifierNode);
+        });
+
+        it("should parse indexing", () => {
+            const input = [
+                ProgrammingEmojis.INDEXING,
+                NumberEmojis.ONE,
+                NumberEmojis.TWO,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements).toHaveLength(1);
+            expect(ast.program.statements[0]).toBeInstanceOf(
+                IndexExpressionNode
+            );
+            const n = ast.program.statements[0] as IndexExpressionNode;
+            expect(n.index).toBe(12);
+        });
+    });
+
+    describe("Parse function definition", () => {
+        it("should parse a function definition", () => {
+            const input = [
+                ProgrammingEmojis.FUNCTION_DEF,
+                "🍉",
+                "🍉",
+                "🍉",
+                ProgrammingEmojis.POINTER,
+                ProgrammingEmojis.VAR_DECLARATION,
+                "🍉",
+                ProgrammingEmojis.POINTER,
+                NumberEmojis.ONE,
+                ControlFlowEmojis.STOP,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBeTruthy();
+            expect(ast.program.statements).toHaveLength(1);
+            expect(ast.program.statements[0]).toBeInstanceOf(
+                FunctionDefinitionNode
+            );
+            const foo = ast.program.statements[0] as FunctionDefinitionNode;
+            expect(foo.name).toBeInstanceOf(IdentifierNode);
+            expect(foo.name.name).toEqual("🍉🍉🍉");
+            expect(foo.parameters).toHaveLength(0);
+            expect(foo.body).toHaveLength(1);
+            expect(foo.body[0]).toBeInstanceOf(VariableDeclarationNode);
+        });
     });
 
     // Test program node structure
-    // describe("Program Structure", () => {
-    //     it("should create a valid program node", () => {
-    //         const ast = parse("1️⃣");
-    //         expect(ast.isValid).toBe(true);
-    //         expect(ast.program).toBeInstanceOf(ProgramNode);
-    //         expect(Array.isArray(ast.program.statements)).toBe(true);
-    //         expect(ast.program.statements).toHaveLength(1);
-    //     });
-    //
-    //     it("should handle empty programs", () => {
-    //         const ast = parse("");
-    //         expect(ast.isValid).toBe(true);
-    //         expect(ast.program.statements).toHaveLength(0);
-    //     });
-    // });
+    describe("Program Structure", () => {
+        it("should create a valid program node", () => {
+            const ast = parse("1️⃣");
+            expect(ast.isValid).toBe(true);
+            expect(ast.program).toBeInstanceOf(ProgramNode);
+            expect(Array.isArray(ast.program.statements)).toBe(true);
+            expect(ast.program.statements).toHaveLength(1);
+        });
 
-    // describe("Basic Node Types", () => {
-    //     it("should parse number literals", () => {
-    //         const ast = parse("1️⃣");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as NumberLiteralNode;
-    //         expect(node).toBeInstanceOf(NumberLiteralNode);
-    //         expect(node.value).toBe(1);
-    //     });
-    //
-    //     it("should parse string literals", () => {
-    //         const ast = parse("📋 hello 📋");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as StringLiteralNode;
-    //         expect(node).toBeInstanceOf(StringLiteralNode);
-    //         expect(node.value).toBe("hello");
-    //     });
-    //
-    //     it("should parse boolean literals", () => {
-    //         const ast = parse("✅");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as BooleanLiteralNode;
-    //         expect(node).toBeInstanceOf(BooleanLiteralNode);
-    //         expect(node.value).toBe(true);
-    //     });
-    //
-    //     it("should parse identifiers", () => {
-    //         const ast = parse("👋"); // Just parse the identifier directly
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as IdentifierNode;
-    //         expect(node).toBeInstanceOf(IdentifierNode);
-    //         expect(node.name).toBe("👋");
-    //     });
-    // });
+        it("should handle empty programs", () => {
+            const ast = parse("");
+            expect(ast.isValid).toBe(true);
+            expect(ast.program.statements).toHaveLength(0);
+        });
+    });
 
-    // describe("Array Operations", () => {
-    //     it("should parse array literals", () => {
-    //         const input = [
-    //             ArrayEmojis.START,
-    //             NumberEmojis.ONE,
-    //             ProgrammingEmojis.COMMA,
-    //             NumberEmojis.TWO,
-    //             ArrayEmojis.END,
-    //         ].join(" ");
-    //         // console.log("Parsing array literal:", input);
-    //         const ast = parse(input);
-    //         // console.log("AST:", ast);
-    //         expect(ast.isValid).toBe(true);
-    //         expect(ast.program.statements[0]).toBeInstanceOf(ArrayLiteralNode);
-    //         const node = ast.program.statements[0] as ArrayLiteralNode;
-    //         expect(node.elements).toHaveLength(2);
-    //     });
-    //
-    //     it("should parse array indexing", () => {
-    //         const ast = parse(
-    //             [
-    //                 ArrayEmojis.START,
-    //                 "👋",
-    //                 ArrayEmojis.END,
-    //                 ProgrammingEmojis.INDEXING,
-    //                 NumberEmojis.ZERO,
-    //             ].join(" ")
-    //         );
-    //         expect(ast.isValid).toBe(true);
-    //         expect(ast.program.statements).toHaveLength(2);
-    //         expect(ast.program.statements[0]).toBeInstanceOf(ArrayLiteralNode);
-    //         expect(ast.program.statements[1]).toBeInstanceOf(
-    //             IndexExpressionNode
-    //         );
-    //         // const node = ast.program.statements[0] as ArrayLiteralNode;
-    //         // const node2 = ast.program.statements[1] as IndexExpressionNode;
-    //         // expect(node.elements).toHaveLength(1);
-    //         // expect(node.elements[0]).toBeInstanceOf(IdentifierNode);
-    //         // expect(node2.index).toBe(0);
-    //     });
-    // });
+    describe("Basic Node Types", () => {
+        it("should parse number literals", () => {
+            const ast = parse("1️⃣");
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as NumberLiteralNode;
+            expect(node).toBeInstanceOf(NumberLiteralNode);
+            expect(node.value).toBe(1);
+        });
 
-    // describe("Functions", () => {
-    //     it("should parse function definitions", () => {
-    //         const ast = parse("📎 👋 👉 📢 1️⃣ ⏹️");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as FunctionDefinitionNode;
-    //         expect(node.name.name).toBe("👋");
-    //         expect(node.body).toHaveLength(1);
-    //     });
-    //
-    //     it("should parse simple function calls", () => {
-    //         const input = "🫑 👋 1️⃣ 🍴";
-    //         // console.log("Parsing function call:", input);
-    //         const ast = parse(input);
-    //         // console.log("AST:", ast);
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as FunctionCallNode;
-    //         expect(node.name.name).toBe("👋");
-    //         expect(node.parameters).toHaveLength(1);
-    //     });
-    //
-    //     it("should parse function calls with multiple parameters", () => {
-    //         const input = "🫑 👋 1️⃣ 🌚 2️⃣ 🍴";
-    //         // console.log("Parsing multi-param function call:", input);
-    //         const ast = parse(input);
-    //         // console.log("AST:", ast);
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as FunctionCallNode;
-    //         expect(node.parameters).toHaveLength(2);
-    //     });
-    // });
-    //
-    // describe("Error Handling", () => {
-    //     it("should handle invalid tokens", () => {
-    //         const ast = parse("invalid_token");
-    //         expect(ast.isValid).toBe(false);
-    //         expect(ast.error).toBeDefined();
-    //     });
-    //
-    //     it("should handle mismatched array brackets", () => {
-    //         const ast = parse("📦 1️⃣ 2️⃣");
-    //         expect(ast.isValid).toBe(false);
-    //         expect(ast.error).toBeDefined();
-    //     });
-    //
-    //     it("should handle mismatched function call delimiters", () => {
-    //         const ast = parse("🫑 👋 1️⃣");
-    //         expect(ast.isValid).toBe(false);
-    //         expect(ast.error).toBeDefined();
-    //     });
-    // });
-    //
-    // describe("Literals", () => {
-    //     it("should parse number literals", () => {
-    //         const ast = parse("1️⃣");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as NumberLiteralNode;
-    //         expect(node.value).toBe(1);
-    //     });
-    //
-    //     it("should parse boolean literals", () => {
-    //         const ast = parse("✅");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as BooleanLiteralNode;
-    //         expect(node.value).toBe(true);
-    //     });
-    //
-    //     it("should parse array literals", () => {
-    //         const ast = parse("📦 1️⃣ 2️⃣ 3️⃣ 📦");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as ArrayLiteralNode;
-    //         expect(node.elements).toHaveLength(3);
-    //     });
-    // });
-    //
-    // describe("Variable Operations", () => {
-    //     it("should parse number variable declarations", () => {
-    //         const ast = parse("🔢 👋 1️⃣");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as VariableDeclarationNode;
-    //         expect(node.name.name).toBe("👋");
-    //         expect((node.value as NumberLiteralNode).value).toBe(1);
-    //     });
-    //
-    //     it("should parse array variable declarations", () => {
-    //         const ast = parse("📦 👋 📦 1️⃣ 2️⃣ 📦");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as VariableDeclarationNode;
-    //         expect(node.name.name).toBe("👋");
-    //     });
-    //
-    //     it("should parse variable assignments", () => {
-    //         const ast = parse("📥 👋 1️⃣");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as AssignmentNode;
-    //         expect(node.identifier.name).toBe("👋");
-    //         expect((node.value as NumberLiteralNode).value).toBe(1);
-    //     });
-    // });
-    //
-    // describe("Expressions", () => {
-    //     it("should parse math expressions", () => {
-    //         const ast = parse("1️⃣ ➕ 2️⃣");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as ExpressionNode;
-    //         expect((node.left as NumberLiteralNode).value).toBe(1);
-    //         expect(node.operator).toBe("➕");
-    //         expect((node.right as NumberLiteralNode).value).toBe(2);
-    //     });
-    //
-    //     it("should parse comparison expressions", () => {
-    //         const ast = parse("1️⃣ 🎯 2️⃣");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as ExpressionNode;
-    //         expect((node.left as NumberLiteralNode).value).toBe(1);
-    //         expect(node.operator).toBe("🎯");
-    //     });
-    //
-    //     it("should parse barrier expressions", () => {
-    //         const ast = parse("🚧 1️⃣ ➕ 2️⃣ 🚧");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as ExpressionNode;
-    //         expect(node.setParenthesis).toBe(true);
-    //     });
-    // });
-    //
-    // describe("Control Flow", () => {
-    //     it("should parse if statements", () => {
-    //         const ast = parse("🤔 1️⃣ 👉 📢 2️⃣ ⏹️");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as IfStatementNode;
-    //         expect(node.consequent).toHaveLength(1);
-    //         expect(node.alternative).toBeUndefined();
-    //     });
-    //
-    //     it("should parse if-else statements", () => {
-    //         const ast = parse("🤔 1️⃣ 👉 📢 2️⃣ 💭 📢 3️⃣ ⏹️");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as IfStatementNode;
-    //         expect(node.consequent).toHaveLength(1);
-    //         expect(node.alternative).toBeDefined();
-    //         expect(node.alternative).toHaveLength(1);
-    //     });
-    //
-    //     it("should parse loop statements", () => {
-    //         const ast = parse("🔄 1️⃣ 👉 📢 2️⃣ ⏹️");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as LoopStatementNode;
-    //         expect(node.body).toHaveLength(1);
-    //     });
-    // });
-    //
-    // describe("Functions", () => {
-    //     it("should parse function definitions", () => {
-    //         const ast = parse("📎 🎮 👤 👉 📢 👤 ⏹️");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as FunctionDefinitionNode;
-    //         expect(node.name.name).toBe("🎮");
-    //         expect(node.parameters).toHaveLength(1);
-    //         expect(node.body).toHaveLength(1);
-    //     });
-    //
-    //     it("should parse function calls", () => {
-    //         const ast = parse("🫑 🎮 1️⃣ 🍴");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as FunctionCallNode;
-    //         expect(node.name.name).toBe("🎮");
-    //         expect(node.parameters).toHaveLength(1);
-    //     });
-    //
-    //     it("should parse function calls with multiple parameters", () => {
-    //         const ast = parse("🫑 🎮 1️⃣ 🌚 2️⃣ 🍴");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as FunctionCallNode;
-    //         expect(node.parameters).toHaveLength(2);
-    //     });
-    // });
-    //
-    // describe("Array Operations", () => {
-    //     it("should parse array indexing", () => {
-    //         const ast = parse("📦 1️⃣ 2️⃣ 📦 🔎 0️⃣");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as IndexExpressionNode;
-    //         expect(node.index).toBe(0);
-    //     });
-    // });
-    //
-    // describe("IO Operations", () => {
-    //     it("should parse print statements", () => {
-    //         const ast = parse("📢 1️⃣");
-    //         expect(ast.isValid).toBe(true);
-    //         const node = ast.program.statements[0] as IOOperationNode;
-    //         expect(node.type).toBe("📢");
-    //         expect((node.value as NumberLiteralNode).value).toBe(1);
-    //     });
-    // });
-    //
-    // describe("Complex Programs", () => {
-    //     it("should parse multiple statements", () => {
-    //         const input = `
-    //             🔢 👋 1️⃣
-    //             📢 👋
-    //             🤔 👋 🎯 1️⃣ 👉
-    //                 📢 2️⃣
-    //             ⏹️
-    //         `;
-    //         const ast = parse(input);
-    //         expect(ast.isValid).toBe(true);
-    //         expect(ast.program.statements).toHaveLength(3);
-    //     });
-    //
-    //     it("should parse nested control flow", () => {
-    //         const input = `
-    //             🤔 1️⃣ 👉
-    //                 🤔 2️⃣ 👉
-    //                     📢 3️⃣
-    //                 ⏹️
-    //             ⏹️
-    //         `;
-    //         const ast = parse(input);
-    //         expect(ast.isValid).toBe(true);
-    //         const ifNode = ast.program.statements[0] as IfStatementNode;
-    //         expect(ifNode.consequent).toHaveLength(1);
-    //     });
-    // });
-    //
-    // describe("Error Handling", () => {
-    //     it("should handle invalid tokens", () => {
-    //         const ast = parse("❓");
-    //         expect(ast.isValid).toBe(false);
-    //         expect(ast.error).toBeDefined();
-    //     });
-    //
-    //     it("should handle incomplete if statements", () => {
-    //         const ast = parse("🤔 1️⃣ 👉");
-    //         expect(ast.isValid).toBe(false);
-    //         expect(ast.error).toBeDefined();
-    //     });
-    //
-    //     it("should handle invalid function declarations", () => {
-    //         const ast = parse("📎 👉");
-    //         expect(ast.isValid).toBe(false);
-    //         expect(ast.error).toBeDefined();
-    //     });
-    // });
+        it("should parse string literals", () => {
+            const ast = parse("📋 hello 📋");
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as StringLiteralNode;
+            expect(node).toBeInstanceOf(StringLiteralNode);
+            expect(node.value).toBe("hello");
+        });
+
+        it("should parse boolean literals", () => {
+            const ast = parse("✅");
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as BooleanLiteralNode;
+            expect(node).toBeInstanceOf(BooleanLiteralNode);
+            expect(node.value).toBe(true);
+        });
+
+        it("should parse identifiers", () => {
+            const ast = parse("👋"); // Just parse the identifier directly
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as IdentifierNode;
+            expect(node).toBeInstanceOf(IdentifierNode);
+            expect(node.name).toBe("👋");
+        });
+    });
+
+    describe("Array Operations", () => {
+        it("should parse array literals", () => {
+            const input = [
+                ArrayEmojis.START,
+                NumberEmojis.ONE,
+                ProgrammingEmojis.COMMA,
+                NumberEmojis.TWO,
+                ArrayEmojis.END,
+            ].join(" ");
+            // console.log("Parsing array literal:", input);
+            const ast = parse(input);
+            // console.log("AST:", ast);
+            expect(ast.isValid).toBe(true);
+            expect(ast.program.statements[0]).toBeInstanceOf(ArrayLiteralNode);
+            const node = ast.program.statements[0] as ArrayLiteralNode;
+            expect(node.elements).toHaveLength(2);
+        });
+
+        it("should parse array indexing", () => {
+            const ast = parse(
+                [
+                    ArrayEmojis.START,
+                    "👋",
+                    ArrayEmojis.END,
+                    ProgrammingEmojis.INDEXING,
+                    NumberEmojis.ZERO,
+                ].join(" ")
+            );
+            expect(ast.isValid).toBe(true);
+            expect(ast.program.statements).toHaveLength(2);
+            expect(ast.program.statements[0]).toBeInstanceOf(ArrayLiteralNode);
+            expect(ast.program.statements[1]).toBeInstanceOf(
+                IndexExpressionNode
+            );
+        });
+    });
+
+    describe("Error Handling", () => {
+        it("should handle invalid tokens", () => {
+            const ast = parse("invalid_token");
+            expect(ast.isValid).toBe(false);
+            expect(ast.error).toBeDefined();
+        });
+
+        it("should handle mismatched array brackets", () => {
+            const ast = parse("📦 1️⃣ 2️⃣");
+            expect(ast.isValid).toBe(false);
+            expect(ast.error).toBeDefined();
+        });
+
+        it("should handle mismatched function call delimiters", () => {
+            const ast = parse("🫑 👋 1️⃣");
+            expect(ast.isValid).toBe(false);
+            expect(ast.error).toBeDefined();
+        });
+    });
+
+    describe("Expressions", () => {
+        it("should parse math expressions", () => {
+            const ast = parse("1️⃣ ➕ 2️⃣");
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as ExpressionNode;
+            expect((node.left as NumberLiteralNode).value).toBe(1);
+            expect(node.operator).toBe("➕");
+            expect((node.right as NumberLiteralNode).value).toBe(2);
+        });
+
+        it("should parse comparison expressions", () => {
+            const ast = parse("1️⃣ 🎯 2️⃣");
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as ExpressionNode;
+            expect((node.left as NumberLiteralNode).value).toBe(1);
+            expect(node.operator).toBe("🎯");
+        });
+
+        it("should parse barrier expressions", () => {
+            const ast = parse("🚧 1️⃣ ➕ 2️⃣ 🚧");
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as ExpressionNode;
+            expect(node.setParenthesis).toBe(true);
+        });
+    });
+
+    describe("Control Flow", () => {
+        it("should parse if statements", () => {
+            const ast = parse("🤔 1️⃣ 👉 📢 2️⃣ ⏹️");
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as IfStatementNode;
+            expect(node.consequent).toHaveLength(1);
+            expect(node.alternative).toBeUndefined();
+        });
+
+        it("should parse if-else statements", () => {
+            const ast = parse("🤔 1️⃣ 👉 📢 2️⃣ 💭 📢 3️⃣ ⏹️");
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as IfStatementNode;
+            expect(node.consequent).toHaveLength(1);
+            expect(node.alternative).toBeDefined();
+            expect(node.alternative).toHaveLength(1);
+        });
+
+        it("should parse loop statements", () => {
+            const ast = parse("🔄 1️⃣ 👉 📢 2️⃣ ⏹️");
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as LoopStatementNode;
+            expect(node.body).toHaveLength(1);
+        });
+    });
+
+    describe("Array Operations", () => {
+        it("should parse array indexing", () => {
+            const input = [
+                ArrayEmojis.START,
+                NumberEmojis.ONE,
+                ArrayEmojis.END,
+                ProgrammingEmojis.INDEXING,
+                NumberEmojis.ZERO,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBe(true);
+            expect(ast.program.statements).toHaveLength(2);
+            expect(ast.program.statements[0]).toBeInstanceOf(ArrayLiteralNode);
+            const node = ast.program.statements[1] as IndexExpressionNode;
+            expect(node.index).toBe(0);
+        });
+    });
+
+    describe("IO Operations", () => {
+        it("should parse print statements", () => {
+            const ast = parse("📢 1️⃣");
+            expect(ast.isValid).toBe(true);
+            const node = ast.program.statements[0] as IOOperationNode;
+            expect(node.type).toBe("📢");
+            expect((node.value as NumberLiteralNode).value).toBe(1);
+        });
+    });
+
+    describe("Complex Programs", () => {
+        it("should parse multiple statements", () => {
+            const input = [
+                ProgrammingEmojis.VAR_DECLARATION,
+                "👋",
+                ProgrammingEmojis.POINTER,
+                NumberEmojis.ONE,
+                IOEmojis.PRINT,
+                "👋",
+                ControlFlowEmojis.IF,
+                "👋",
+                RelationalEmojis.EQUAL,
+                NumberEmojis.ONE,
+                ControlFlowEmojis.IF_THEN,
+                IOEmojis.PRINT,
+                NumberEmojis.TWO,
+                ControlFlowEmojis.STOP,
+            ].join(" ");
+            const ast = parse(input);
+            expect(ast.isValid).toBe(true);
+            expect(ast.program.statements).toHaveLength(3);
+        });
+
+        it("should parse nested control flow", () => {
+            const input = `
+                🤔 1️⃣ 👉
+                    🤔 2️⃣ 👉
+                        📢 3️⃣
+                    ⏹️
+                ⏹️
+            `;
+            const ast = parse(input);
+            expect(ast.isValid).toBe(true);
+            const ifNode = ast.program.statements[0] as IfStatementNode;
+            expect(ifNode.consequent).toHaveLength(1);
+        });
+    });
+
+    describe("Error Handling", () => {
+        it("should handle invalid tokens", () => {
+            const ast = parse("a");
+            expect(ast.isValid).toBe(false);
+            expect(ast.error).toBeDefined();
+        });
+
+        it("should handle incomplete if statements", () => {
+            const ast = parse("🤔 1️⃣ 👉");
+            expect(ast.isValid).toBe(false);
+            expect(ast.error).toBeDefined();
+        });
+
+        it("should handle invalid function declarations", () => {
+            const ast = parse("📎 👉");
+            expect(ast.isValid).toBe(false);
+            expect(ast.error).toBeDefined();
+        });
+    });
 });

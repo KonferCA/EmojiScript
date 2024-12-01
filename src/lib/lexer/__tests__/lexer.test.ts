@@ -2,10 +2,12 @@ import { describe, it, expect } from "vitest";
 import { Lexer, TokenType } from "../lexer";
 import {
     ArrayEmojis,
+    ControlFlowEmojis,
     NumberEmojis,
     ProgrammingEmojis,
     StringEmojis,
 } from "@/lib/emojiConstants";
+import exp from "constants";
 
 describe("Lexer", () => {
     const getTokens = (input: string) => {
@@ -140,6 +142,28 @@ describe("Lexer", () => {
             expect(tokens[0].type).toBe(TokenType.Number);
             expect(tokens[1].type).toBe(TokenType.AdditionOp);
             expect(tokens[2].type).toBe(TokenType.Number);
+        });
+    });
+
+    describe("Control Flow", () => {
+        it("should return barrier operator", () => {
+            const input = ControlFlowEmojis.PRECEDENCE;
+            const tokens = getTokens(input);
+            expect(tokens).toHaveLength(1);
+            expect(tokens[0].type).toBe(TokenType.BarrierOp);
+        });
+
+        it("should return function call tokens", () => {
+            const input = [
+                ProgrammingEmojis.FUNCTION_CALL_START,
+                ProgrammingEmojis.POINTER,
+                ProgrammingEmojis.FUNCTION_CALL_END,
+            ].join(" ");
+            const tokens = getTokens(input);
+            expect(tokens).toHaveLength(3);
+            expect(tokens[0].type).toBe(TokenType.FuncCallStart);
+            expect(tokens[1].type).toBe(TokenType.ThenOp);
+            expect(tokens[2].type).toBe(TokenType.FuncCallEnd);
         });
     });
 

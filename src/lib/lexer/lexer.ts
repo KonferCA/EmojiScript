@@ -57,7 +57,6 @@ export enum TokenType {
     // Function Operations
     FuncDef, // 📎
     FuncCallStart, // 🫑
-    FuncCallParam, // 🍴
     FuncCallEnd, // 🍴
 
     // Variable Operations
@@ -385,7 +384,7 @@ export class Lexer {
                 };
             case ProgrammingEmojis.FUNCTION_CALL_END: // Function call param/end
                 return {
-                    type: TokenType.FuncCallParam,
+                    type: TokenType.FuncCallEnd,
                     literal: emoji,
                     position: pos,
                 };

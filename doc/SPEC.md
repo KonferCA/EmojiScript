@@ -13,7 +13,7 @@ var_declaration = type emoji_char+ literal
 
 inline_literal = type literal
 
-var_assignment = "📥" emoji_char+ var | "📥" emoji_char+ literal
+var_assignment = "📥" emoji_char+ "👉" var | "📥" emoji_char+ "👉" literal
 
 type = "📝" | "🔢" | "🏁"
 
@@ -54,7 +54,7 @@ parameter' = expression | E
 
 loop = "🔁" expression "👉" statement* "⏹️"
 
-function = "📎" emoji_char* "👉" statement* "⏹️"
+function = "📎" emoji_char* "👉" parameters "👉" statement* "⏹️"
 
 io_operation = "📢"
 ```

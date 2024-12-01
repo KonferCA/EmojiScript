@@ -7,10 +7,12 @@ import {
     RelationalEmojis,
 } from "../emojiConstants";
 import { SymbolTable } from "../ir/symbolTable";
+import { BiMap } from "../ir/bimap";
 
 export class ASTVisitor implements NodeVisitor {
     private indent: number = 0;
     private symbolTable: SymbolTable = new SymbolTable();
+    private varBiMap: BiMap = new BiMap();
 
     constructor() {}
 
@@ -61,7 +63,7 @@ export class ASTVisitor implements NodeVisitor {
     visitIdentifier(node: Nodes.IdentifierNode): string {
         // returns the string itself without quotes
         // for javascript to treat it like an actual identifier
-        return node.name;
+        return this.varBiMap.addMapping(node.name);
     }
 
     visitMathOperation(node: Nodes.MathOperationNode): string {
