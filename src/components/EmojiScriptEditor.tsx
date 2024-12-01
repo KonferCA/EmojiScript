@@ -10,12 +10,16 @@ import { Button } from "./Button";
 import Fuse from "fuse.js";
 import { emojiList, EmojiObject } from "@/lib/emojiList";
 import { ControlFlowEmojis } from "@/lib/emojiConstants";
+import { Lexer } from "@/lib/lexer/lexer";
+import { Parser } from "@/lib/parser/parser";
+import { IR } from "@/lib/ir/ir";
 
 const EmojiScriptEditor = () => {
     const [code, setCode] = useState("");
     const [suggestions, setSuggestions] = useState<EmojiObject[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const [colonIndex, setColonIndex] = useState<number | null>(null);
+    const [error, setError] = useState("");
     const fuseRef = useRef(
         new Fuse(emojiList, {
             keys: ["name"],
@@ -44,6 +48,7 @@ const EmojiScriptEditor = () => {
                 }
                 break;
             case "Enter":
+            case " ":
                 if (suggestions.length) {
                     e.preventDefault();
                     handleSelect(selectedIndex);
@@ -63,7 +68,7 @@ const EmojiScriptEditor = () => {
             const beforeColon = code.slice(0, colonIndex);
             const afterCursor = code.slice(textareaRef.current.selectionStart);
             const emoji = suggestions[idx].emoji;
-            const newCode = beforeColon + emoji + afterCursor;
+            const newCode = beforeColon + emoji + " " + afterCursor;
             setCode(newCode);
             setSuggestions([]);
             setSelectedIndex(-1);
@@ -80,7 +85,19 @@ const EmojiScriptEditor = () => {
     };
 
     const runEmojiScript = () => {
-        eval("alert('hello')");
+        setError("");
+        const lexer = new Lexer(code);
+        const parser = new Parser(lexer);
+        const ast = parser.parse();
+        if (ast.isValid) {
+            const ir = new IR(ast.program);
+            const js = ir.build();
+            eval(js);
+        } else if (typeof ast.error === "string") {
+            setError(ast.error);
+        } else {
+            console.log("invalid ast");
+        }
     };
 
     useEffect(() => {
@@ -149,6 +166,12 @@ const EmojiScriptEditor = () => {
                     ))}
                 </div>
             )}
+            {error.length > 0 ? (
+                <div className="mt-4">
+                    <p className="text-lg font-bold">ERROR{"‼️"}</p>
+                    <p>{error}</p>
+                </div>
+            ) : null}
             <div className="mt-4">
                 <p className="text-lg font-bold">How to EmojiScript{"❓"}</p>
                 <p>

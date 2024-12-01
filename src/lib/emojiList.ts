@@ -431,4 +431,6 @@ export const emojiList: EmojiObject[] = [
     { name: "wing", emoji: "🪽" },
     { name: "black_bird", emoji: "🪿" },
     { name: "goose", emoji: "🪶" },
+
+    { name: "fire", emoji: "🔥" },
 ];
