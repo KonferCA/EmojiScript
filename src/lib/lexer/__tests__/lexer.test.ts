@@ -7,7 +7,6 @@ import {
     ProgrammingEmojis,
     StringEmojis,
 } from "@/lib/emojiConstants";
-import exp from "constants";
 
 describe("Lexer", () => {
     const getTokens = (input: string) => {

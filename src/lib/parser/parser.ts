@@ -303,39 +303,39 @@ export class Parser {
         );
     }
 
-    private parseFunctionCall(
-        name: Nodes.IdentifierNode
-    ): Nodes.FunctionCallNode {
-        // console.log("Parsing function call");
-        const position = this.currentToken.position;
-        this.advance(); // consume 🫑
-
-        const parameters: ExpressionCompatibleNodes[] = [];
-
-        // Parse parameters until we hit 🍴
-        while (
-            this.currentToken.type !== TokenType.FuncCallEnd &&
-            this.currentToken.type !== TokenType.EOF
-        ) {
-            // console.log("Parsing parameter, current token:", this.currentToken);
-            parameters.push(this.parseExpression());
-
-            if (this.currentToken.type === TokenType.CommaOp) {
-                this.advance(); // consume 🌚
-            }
-        }
-
-        if (this.currentToken.type !== TokenType.FuncCallEnd) {
-            throw new ParserError(
-                ParserErrorType.UnexpectedToken,
-                "Expected 🍴",
-                this.currentToken.position
-            );
-        }
-
-        this.advance(); // consume 🍴
-        return new Nodes.FunctionCallNode(name, parameters, position);
-    }
+    // private parseFunctionCall(
+    //     name: Nodes.IdentifierNode
+    // ): Nodes.FunctionCallNode {
+    //     // console.log("Parsing function call");
+    //     const position = this.currentToken.position;
+    //     this.advance(); // consume 🫑
+    //
+    //     const parameters: ExpressionCompatibleNodes[] = [];
+    //
+    //     // Parse parameters until we hit 🍴
+    //     while (
+    //         this.currentToken.type !== TokenType.FuncCallEnd &&
+    //         this.currentToken.type !== TokenType.EOF
+    //     ) {
+    //         // console.log("Parsing parameter, current token:", this.currentToken);
+    //         parameters.push(this.parseExpression());
+    //
+    //         if (this.currentToken.type === TokenType.CommaOp) {
+    //             this.advance(); // consume 🌚
+    //         }
+    //     }
+    //
+    //     if (this.currentToken.type !== TokenType.FuncCallEnd) {
+    //         throw new ParserError(
+    //             ParserErrorType.UnexpectedToken,
+    //             "Expected 🍴",
+    //             this.currentToken.position
+    //         );
+    //     }
+    //
+    //     this.advance(); // consume 🍴
+    //     return new Nodes.FunctionCallNode(name, parameters, position);
+    // }
 
     private parseFunctionCallStatement(): Nodes.FunctionCallNode {
         const position = this.currentToken.position;
