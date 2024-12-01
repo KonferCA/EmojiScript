@@ -1,7 +1,7 @@
 import {
+    ArrayEmojis,
     BooleanEmojis,
     ControlFlowEmojis,
-    DataTypeEmojis,
     IOEmojis,
     MathOperatorEmojis,
     NumberEmojis,
@@ -14,11 +14,11 @@ export type EmojiObject = { name: string; emoji: string };
 
 export const emojiList: EmojiObject[] = [
     // data type keywords
-    { name: "string_type", emoji: DataTypeEmojis.STRING },
-    { name: "boolean_type", emoji: DataTypeEmojis.BOOLEAN },
-    { name: "number_type", emoji: DataTypeEmojis.NUMBER },
-    { name: "array_type", emoji: DataTypeEmojis.ARRAY },
-    { name: "[]", emoji: DataTypeEmojis.ARRAY },
+    { name: "[", emoji: ArrayEmojis.START },
+    { name: "]", emoji: ArrayEmojis.END },
+
+    { name: "variable", emoji: ProgrammingEmojis.VAR_DECLARATION },
+    { name: "let", emoji: ProgrammingEmojis.VAR_DECLARATION },
 
     // literal values
     // boolean

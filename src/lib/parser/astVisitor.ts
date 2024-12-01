@@ -7,10 +7,12 @@ import {
     RelationalEmojis,
 } from "../emojiConstants";
 import { SymbolTable } from "../ir/symbolTable";
+import { BiMap } from "../ir/bimap";
 
 export class ASTVisitor implements NodeVisitor {
     private indent: number = 0;
     private symbolTable: SymbolTable = new SymbolTable();
+    private varBiMap: BiMap = new BiMap();
 
     constructor() {}
 
@@ -61,7 +63,7 @@ export class ASTVisitor implements NodeVisitor {
     visitIdentifier(node: Nodes.IdentifierNode): string {
         // returns the string itself without quotes
         // for javascript to treat it like an actual identifier
-        return node.name;
+        return this.varBiMap.addMapping(node.name);
     }
 
     visitMathOperation(node: Nodes.MathOperationNode): string {
@@ -217,12 +219,7 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitIndexExpression(node: Nodes.IndexExpressionNode): string {
-        return [
-            node.expression.accept(this),
-            "[",
-            node.index.toString(),
-            "]",
-        ].join("");
+        return ["[", node.index.toString(), "]"].join("");
     }
 
     visitAssignment(node: AssignmentNode): string {
@@ -322,9 +319,8 @@ ${this.getIndentation()}Consequent:\n${consequent}${
     }
     debugIndexExpression(node: Nodes.IndexExpressionNode): string {
         this.indent++;
-        const expression = node.expression.accept(this);
         this.indent--;
-        return `${this.getIndentation()}IndexExpression:\n${expression}\n${this.getIndentation()}  Index: ${node.index}`;
+        return `${this.getIndentation()}IndexExpression:\n${this.getIndentation()}  Index: ${node.index}`;
     }
 
     debugExpression(node: Nodes.ExpressionNode): string {

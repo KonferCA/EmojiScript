@@ -86,7 +86,7 @@ describe("Test Function Definition Node", () => {
         expect(n.position).toEqual({ line: 0, column: 0 });
         expect(n.accept).toBeTypeOf("function");
         expect(n.debug).toBeTypeOf("function");
-        expect(n.accept(visitor)).toEqual("function a(param1,param2){}");
+        expect(n.accept(visitor)).toEqual("function a(b,c){}");
     });
 
     it("should create a function definition with parameters and body javascript string", () => {
@@ -128,7 +128,7 @@ describe("Test Function Definition Node", () => {
         expect(n.accept).toBeTypeOf("function");
         expect(n.debug).toBeTypeOf("function");
         expect(n.accept(visitor)).toEqual(
-            "function a(param1,param2){if(param1<param2){window.alert(1);window.alert(2)}}"
+            "function a(b,c){if(b<c){window.alert(1);window.alert(2)}}"
         );
     });
 

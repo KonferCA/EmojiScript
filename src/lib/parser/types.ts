@@ -1,10 +1,4 @@
-// TODO: Get imported position when lexer is merged in
-// import { Position } from '../lexer/idk yet';
-// temp s:lution
-type Position = {
-    line: number;
-    column: number;
-};
+import { Position } from "../lexer/lexer";
 
 import type {
     ControlFlowEmoji,
@@ -126,6 +120,7 @@ export type ExpressionCompatibleNodes =
     | NumberLiteralNode
     | StringLiteralNode
     | BooleanLiteralNode
+    | ArrayLiteralNode
     | IndexExpressionNode
     | FunctionCallNode
     | IdentifierNode
@@ -167,12 +162,10 @@ export interface IOOperationNode extends Node {
 export type IndexableNodes =
     | FunctionCallNode
     | IdentifierNode
-    | IndexExpressionNode
     | ArrayLiteralNode
     | ExpressionNode;
 
 export interface IndexExpressionNode extends Node {
-    expression: IndexableNodes;
     index: number;
     position: Position;
 }
