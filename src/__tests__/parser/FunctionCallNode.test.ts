@@ -1,7 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
     ExpressionNode,
     FunctionCallNode,
+    FunctionDefinitionNode,
     IdentifierNode,
     NumberLiteralNode,
 } from "@/lib/parser/nodes";
@@ -9,16 +10,28 @@ import { ASTVisitor } from "@/lib/parser/astVisitor";
 import { MathOperatorEmojis } from "@/lib/emojiConstants";
 
 describe("Test Function Call Node", () => {
-    const visitor = new ASTVisitor();
+    let visitor = new ASTVisitor();
     const position = { line: 0, column: 0 };
+    const funcName = "a";
 
-    it("should create a function call without parameters javascript string", () => {
-        const n = new FunctionCallNode(
-            new IdentifierNode("a", position),
+    beforeEach(() => {
+        visitor = new ASTVisitor();
+        // define the function for each test
+        const f = new FunctionDefinitionNode(
+            new IdentifierNode(funcName, position),
+            [],
             [],
             position
         );
-        expect(n.name.accept(visitor)).toEqual("a");
+        f.accept(visitor);
+    });
+
+    it("should create a function call without parameters javascript string", () => {
+        const n = new FunctionCallNode(
+            new IdentifierNode(funcName, position),
+            [],
+            position
+        );
         expect(n.position).toEqual({ line: 0, column: 0 });
         expect(n.accept).toBeTypeOf("function");
         expect(n.debug).toBeTypeOf("function");

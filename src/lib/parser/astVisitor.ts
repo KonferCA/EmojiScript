@@ -6,9 +6,11 @@ import {
     RelationalEmoji,
     RelationalEmojis,
 } from "../emojiConstants";
+import { SymbolTable } from "../ir/symbolTable";
 
 export class ASTVisitor implements NodeVisitor {
     private indent: number = 0;
+    private symbolTable: SymbolTable = new SymbolTable();
 
     constructor() {}
 
@@ -52,6 +54,7 @@ export class ASTVisitor implements NodeVisitor {
     visitVariableDeclaration(node: Nodes.VariableDeclarationNode): string {
         const identStr = node.name.accept(this);
         const valueStr = node.value.accept(this);
+        this.symbolTable.define(identStr, valueStr);
         return `let ${identStr}=${valueStr}`;
     }
 
@@ -72,12 +75,14 @@ export class ASTVisitor implements NodeVisitor {
 
     visitIfStatement(node: Nodes.IfStatementNode): string {
         const builder: string[] = ["if("];
-
         // get the javascript for the condition
         const expr = node.condition.accept(this);
         builder.push(expr);
         // close condition and open body
         builder.push("){");
+
+        // enter new scope for if block
+        this.symbolTable.enterScope();
 
         // get body javascript
         let body: string[] = [];
@@ -86,14 +91,26 @@ export class ASTVisitor implements NodeVisitor {
         });
         // close body
         builder.push(body.join(";"), "}");
+
+        // exit the if block scope
+        this.symbolTable.exitScope();
+
         body = [];
 
         // check for else
         if (node.alternative !== undefined) {
             builder.push("else{");
+
+            // enter else block scope
+            this.symbolTable.enterScope();
+
             node.alternative.forEach((n) => {
                 body.push(n.accept(this));
             });
+
+            // enter else block scope
+            this.symbolTable.exitScope();
+
             builder.push(body.join(";"), "}");
         }
 
@@ -137,18 +154,30 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitLoopStatement(node: Nodes.LoopStatementNode): string {
-        return [
+        const builder: string[] = [
             "while(",
             node.condition.accept(this),
             ")",
             "{",
-            node.body.map((n) => n.accept(this)).join(";"),
-            "}",
-        ].join("");
+        ];
+        // enter while loop block scope
+        this.symbolTable.enterScope();
+
+        builder.push(node.body.map((n) => n.accept(this)).join(";"), "}");
+
+        // exit while loop block scope
+        this.symbolTable.exitScope();
+
+        return builder.join("");
     }
 
     visitFunctionDefinition(node: Nodes.FunctionDefinitionNode): string {
-        const builder: string[] = ["function ", node.name.accept(this), "("];
+        const funcName = node.name.accept(this);
+        this.symbolTable.define(funcName, funcName);
+        const builder: string[] = ["function ", funcName, "("];
+
+        // enter function scope
+        this.symbolTable.enterScope();
 
         // get the parameters
         let body: string[] = [];
@@ -159,11 +188,18 @@ export class ASTVisitor implements NodeVisitor {
         // construct the body
         node.body.forEach((n) => body.push(n.accept(this)));
         builder.push(body.join(";"), "}");
+
+        // exit function scope
+        this.symbolTable.exitScope();
+
         return builder.join("");
     }
 
     visitFunctionCall(node: Nodes.FunctionCallNode): string {
         const name = node.name.accept(this);
+        if (this.symbolTable.lookup(name) === null) {
+            throw new Error("❌⚙️🔍❓💫");
+        }
         const paramBuilder: string[] = [];
         node.parameters.forEach((param) => {
             paramBuilder.push(param.accept(this));
@@ -304,6 +340,7 @@ ${this.getIndentation()}Consequent:\n${consequent}${
     }
 
     debugAssignment(node: AssignmentNode): string {
+        console.log(node);
         return "Assignment";
     }
 

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
     ExpressionNode,
     FunctionDefinitionNode,
@@ -11,7 +11,11 @@ import { ASTVisitor } from "@/lib/parser/astVisitor";
 import { IOEmojis, RelationalEmojis } from "@/lib/emojiConstants";
 
 describe("Test Function Definition Node", () => {
-    const visitor = new ASTVisitor();
+    let visitor = new ASTVisitor();
+    beforeEach(() => {
+        visitor = new ASTVisitor();
+    });
+
     const position = { line: 0, column: 0 };
 
     it("should create a function definition without parameters and empty body javascript string", () => {
@@ -126,5 +130,22 @@ describe("Test Function Definition Node", () => {
         expect(n.accept(visitor)).toEqual(
             "function a(param1,param2){if(param1<param2){window.alert(1);window.alert(2)}}"
         );
+    });
+
+    it("should throw an error if function with the same name is re-defined", () => {
+        const n = new FunctionDefinitionNode(
+            new IdentifierNode("a", position),
+            [],
+            [],
+            position
+        );
+        expect(n.accept(visitor)).toEqual("function a(){}");
+        const m = new FunctionDefinitionNode(
+            new IdentifierNode("a", position),
+            [],
+            [],
+            position
+        );
+        expect(() => m.accept(visitor)).toThrow();
     });
 });

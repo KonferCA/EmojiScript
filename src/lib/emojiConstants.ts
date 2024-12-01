@@ -129,6 +129,7 @@ export type EmojiCategory<T extends ProgrammingSymbolEmoji> =
 export function getEmojiCategory(
     emoji: ProgrammingSymbolEmoji
 ): EmojiCategory<typeof emoji> {
+    // Check which category the emoji belongs to and return the corresponding string
     if (Object.values(DataTypeEmojis).includes(emoji as any)) return "DataType";
     if (Object.values(BooleanEmojis).includes(emoji as any)) return "Boolean";
     if (Object.values(NumberEmojis).includes(emoji as any)) return "Number";
@@ -141,5 +142,6 @@ export function getEmojiCategory(
     if (Object.values(ProgrammingEmojis).includes(emoji as any))
         return "Programming";
     if (Object.values(IOEmojis).includes(emoji as any)) return "IO";
+    // If the emoji doesn't belong to any category, throw an error
     throw new Error("Unknown emoji category");
 }
