@@ -1,13 +1,20 @@
 import { Lexer, TokenType, Position, Lexeme } from "../lexer/lexer";
-import { AST, ParserError, ParserErrorType, Node, ExpressionCompatibleNodes, IndexableNodes } from "./types";
+import {
+    AST,
+    ParserError,
+    ParserErrorType,
+    Node,
+    ExpressionCompatibleNodes,
+    IndexableNodes,
+} from "./types";
 import * as Nodes from "./nodes";
-import { 
-    MathOperatorEmojis, 
+import {
+    MathOperatorEmojis,
     RelationalEmojis,
     IOEmojis,
     type MathOperatorEmoji,
     type RelationalEmoji,
-    type IOEmoji 
+    type IOEmoji,
 } from "../emojiConstants";
 
 export class Parser {
@@ -15,11 +22,13 @@ export class Parser {
 
     constructor(private lexer: Lexer) {
         this.currentToken = this.lexer.next();
+        console.log(this.currentToken);
     }
 
     // Helper methods
     private advance(): void {
         this.currentToken = this.lexer.next();
+        console.log(this.currentToken);
     }
 
     private expect(type: TokenType): void {
@@ -38,14 +47,14 @@ export class Parser {
             const program = this.parseProgram();
             return {
                 isValid: true,
-                program
+                program,
             };
         } catch (error) {
             if (error instanceof ParserError) {
                 return {
                     isValid: false,
                     error: error.message,
-                    program: new Nodes.ProgramNode([], { line: 0, column: 0 })
+                    program: new Nodes.ProgramNode([], { line: 0, column: 0 }),
                 };
             }
             throw error;
@@ -68,18 +77,8 @@ export class Parser {
 
     private parseStatement(): Node {
         switch (this.currentToken.type) {
-            case TokenType.NumberType:
-            case TokenType.StringType:
-            case TokenType.BooleanType:
+            case TokenType.VariableDef:
                 return this.parseVariableDeclaration();
-            case TokenType.ArrayType:
-                // Check if next token is an identifier (for var declaration) or expression (for array literal)
-                const nextToken = this.lexer.peek();
-                if (nextToken.type === TokenType.Emojis) {
-                    return this.parseVariableDeclaration();
-                } else {
-                    return this.parseArrayLiteral();
-                }
             case TokenType.IfOp:
                 return this.parseIfStatement();
             case TokenType.LoopOp:
@@ -104,9 +103,13 @@ export class Parser {
 
         let left = this.parsePrimary();
 
-        while (this.isMathOperator(this.currentToken.type) || 
-               this.isComparisonOperator(this.currentToken.type)) {
-            const operator = this.currentToken.literal as MathOperatorEmoji | RelationalEmoji;
+        while (
+            this.isMathOperator(this.currentToken.type) ||
+            this.isComparisonOperator(this.currentToken.type)
+        ) {
+            const operator = this.currentToken.literal as
+                | MathOperatorEmoji
+                | RelationalEmoji;
             const operatorPos = this.currentToken.position;
             this.advance();
 
@@ -132,13 +135,7 @@ export class Parser {
 
         this.expect(TokenType.BarrierOp);
 
-        return new Nodes.ExpressionNode(
-            expr,
-            null,
-            null,
-            true,
-            position
-        );
+        return new Nodes.ExpressionNode(expr, null, null, true, position);
     }
 
     private parsePrimary(): ExpressionCompatibleNodes {
@@ -146,10 +143,14 @@ export class Parser {
         this.advance();
         switch (token.type) {
             case TokenType.Number:
-                return new Nodes.NumberLiteralNode(
-                    token.literal as number,
-                    token.position
-                );
+                // consume all number tokens
+                let n: number = token.literal as number;
+                while (this.currentToken.type === TokenType.Number) {
+                    n = n * 10;
+                    n = n + (this.currentToken.literal as number);
+                    this.advance();
+                }
+                return new Nodes.NumberLiteralNode(n, token.position);
             case TokenType.String:
                 return new Nodes.StringLiteralNode(
                     token.literal as string,
@@ -160,7 +161,7 @@ export class Parser {
                     token.literal as boolean,
                     token.position
                 );
-            case TokenType.ArrayType:
+            case TokenType.ArrayStart:
                 return this.parseArrayLiteral();
             case TokenType.Emojis:
                 // Handle identifiers and function calls
@@ -168,17 +169,11 @@ export class Parser {
                     token.literal as string,
                     token.position
                 );
-                // Check for indexing operation
-                if (this.currentToken.type === TokenType.IndexingOp) {
-                    return this.parseIndexExpression(identifier);
-                }
                 // Check for function call
                 if (this.currentToken.type === TokenType.FuncCallStart) {
                     return this.parseFunctionCall(identifier);
                 }
                 return identifier;
-            case TokenType.ArrayType:
-                return this.parseArrayLiteral();
             default:
                 throw new ParserError(
                     ParserErrorType.InvalidExpression,
@@ -190,15 +185,24 @@ export class Parser {
 
     private parseArrayLiteral(): Nodes.ArrayLiteralNode {
         const position = this.currentToken.position;
-        this.advance(); // consume first 📦
-        
+
         const elements: ExpressionCompatibleNodes[] = [];
-        while (this.currentToken.type !== TokenType.ArrayType && 
-               this.currentToken.type !== TokenType.EOF) {
-            elements.push(this.parseExpression());
+        while (
+            this.currentToken.type !== TokenType.ArrayEnd &&
+            this.currentToken.type !== TokenType.EOF
+        ) {
+            // recursively parse nested arrays
+            if (this.currentToken.type === TokenType.ArrayStart) {
+                elements.push(this.parsePrimary());
+            } else if (this.currentToken.type !== TokenType.CommaOp) {
+                elements.push(this.parseExpression());
+            } else {
+                // consume comma
+                this.advance();
+            }
         }
-        
-        this.expect(TokenType.ArrayType);
+
+        this.expect(TokenType.ArrayEnd);
         return new Nodes.ArrayLiteralNode(elements, position);
     }
 
@@ -222,79 +226,90 @@ export class Parser {
     private parseFunctionDefinition(): Nodes.FunctionDefinitionNode {
         const position = this.currentToken.position;
         this.advance(); // consume FuncDef token (📎)
-    
+
         // Parse function name
         if (this.currentToken.type !== TokenType.Emojis) {
             throw new ParserError(
                 ParserErrorType.UnexpectedToken,
-                'Expected function name',
+                "Expected function name",
                 this.currentToken.position
             );
         }
         const name = this.parseIdentifier();
-    
+
         // Parse parameters until we see the Then operator (👉)
         const parameters: Nodes.IdentifierNode[] = [];
         while (this.currentToken.type === TokenType.Emojis) {
             parameters.push(this.parseIdentifier());
         }
-    
+
         // Expect Then operator after parameters
         if (this.currentToken.type !== TokenType.ThenOp) {
             throw new ParserError(
                 ParserErrorType.UnexpectedToken,
-                'Expected 👉 after function parameters',
+                "Expected 👉 after function parameters",
                 this.currentToken.position
             );
         }
         this.expect(TokenType.ThenOp);
-    
+
         // Parse function body
         const body: Node[] = [];
-        while (this.currentToken.type !== TokenType.StopOp && 
-               this.currentToken.type !== TokenType.EOF) {
+        while (
+            this.currentToken.type !== TokenType.StopOp &&
+            this.currentToken.type !== TokenType.EOF
+        ) {
             body.push(this.parseStatement());
         }
-    
+
         // Expect Stop operator at end of function
         if (this.currentToken.type !== TokenType.StopOp) {
             throw new ParserError(
                 ParserErrorType.UnexpectedToken,
-                'Expected ⏹️ at end of function',
+                "Expected ⏹️ at end of function",
                 this.currentToken.position
             );
         }
         this.expect(TokenType.StopOp);
-    
-        return new Nodes.FunctionDefinitionNode(name, parameters, body, position);
+
+        return new Nodes.FunctionDefinitionNode(
+            name,
+            parameters,
+            body,
+            position
+        );
     }
 
-    private parseFunctionCall(name: Nodes.IdentifierNode): Nodes.FunctionCallNode {
-        console.log('Parsing function call');
+    private parseFunctionCall(
+        name: Nodes.IdentifierNode
+    ): Nodes.FunctionCallNode {
+        // console.log("Parsing function call");
         const position = this.currentToken.position;
         this.advance(); // consume 🫑
-    
+
         const parameters: ExpressionCompatibleNodes[] = [];
-        
+
         // Parse parameters until we hit 🍴
-        while (this.currentToken.type !== TokenType.FuncCallEnd && 
-               this.currentToken.type !== TokenType.EOF) {
-            console.log('Parsing parameter, current token:', this.currentToken);
+        while (
+            this.currentToken.type !== TokenType.FuncCallEnd &&
+            this.currentToken.type !== TokenType.EOF
+        ) {
+            // console.log("Parsing parameter, current token:", this.currentToken);
             parameters.push(this.parseExpression());
-            
+
             if (this.currentToken.type === TokenType.CommaOp) {
                 this.advance(); // consume 🌚
             }
         }
-    
+
         if (this.currentToken.type !== TokenType.FuncCallEnd) {
             throw new ParserError(
                 ParserErrorType.UnexpectedToken,
-                'Expected 🍴',
+                "Expected 🍴",
                 this.currentToken.position
             );
         }
-    
+
         this.advance(); // consume 🍴
         return new Nodes.FunctionCallNode(name, parameters, position);
     }
@@ -302,38 +317,47 @@ export class Parser {
     private parseFunctionCallStatement(): Nodes.FunctionCallNode {
         const position = this.currentToken.position;
         this.advance(); // consume 🫑
-    
+
         const identifier = this.parseIdentifier();
-        
+
         const parameters: ExpressionCompatibleNodes[] = [];
-        while (this.currentToken.type !== TokenType.FuncCallEnd && 
-               this.currentToken.type !== TokenType.EOF) {
+        while (
+            this.currentToken.type !== TokenType.FuncCallEnd &&
+            this.currentToken.type !== TokenType.EOF
+        ) {
             parameters.push(this.parseExpression());
-            
+
             if (this.currentToken.type === TokenType.CommaOp) {
                 this.advance();
             }
         }
-    
+
         this.expect(TokenType.FuncCallEnd);
         return new Nodes.FunctionCallNode(identifier, parameters, position);
     }
 
-    private parseIndexExpression(indexable: IndexableNodes): Nodes.IndexExpressionNode {
+    private parseIndexExpression(): Nodes.IndexExpressionNode {
         const position = this.currentToken.position;
         this.advance(); // consume 🔎
-    
+
         if (this.currentToken.type !== TokenType.Number) {
             throw new ParserError(
                 ParserErrorType.InvalidExpression,
-                'Expected number for array index',
+                "Expected number for array index",
                 this.currentToken.position
             );
         }
-    
-        const index = this.currentToken.literal as number;
-        this.advance();
-        return new Nodes.IndexExpressionNode(indexable, index, position);
+
+        let index: number = this.currentToken.literal as number;
+        // advance until there are no more numbers
+        while (this.lexer.peek().type === TokenType.Number) {
+            this.advance();
+            index = index * 10;
+            index += this.currentToken.literal as number;
+        }
+
+        this.advance(); // consumes the index
+        return new Nodes.IndexExpressionNode(index, position);
     }
 
     private parseVariableDeclaration(): Nodes.VariableDeclarationNode {
@@ -343,19 +367,26 @@ export class Parser {
         if (this.currentToken.type !== TokenType.Emojis) {
             throw new ParserError(
                 ParserErrorType.UnexpectedToken,
-                'Expected identifier after type declaration',
+                "Expected identifier after type declaration",
                 this.currentToken.position
             );
         }
 
-        const name = new Nodes.IdentifierNode(
-            this.currentToken.literal as string,
+        // grap the entire identifier name for names longer than 1 emoji
+        const name: string[] = [this.currentToken.literal as string];
+        this.advance(); // consume current emoji
+        while (this.currentToken.type === TokenType.Emojis) {
+            name.push(this.currentToken.literal as string);
+            this.advance();
+        }
+
+        const ident = new Nodes.IdentifierNode(
+            name.join(""),
             this.currentToken.position
         );
-        this.advance();
 
         const value = this.parseExpression();
-        return new Nodes.VariableDeclarationNode(name, value, position);
+        return new Nodes.VariableDeclarationNode(ident, value, position);
     }
 
     private parseAssignment(): Nodes.AssignmentNode {
@@ -371,45 +402,59 @@ export class Parser {
     private parseIfStatement(): Nodes.IfStatementNode {
         const position = this.currentToken.position;
         this.advance(); // consume if operator (🤔)
-    
+
         // Wrap the condition in an ExpressionNode if it's not already one
         const conditionExpr = this.parseExpression();
-        const condition = (conditionExpr instanceof Nodes.ExpressionNode) 
-            ? conditionExpr 
-            : new Nodes.ExpressionNode(
-                conditionExpr,
-                null,
-                null,
-                false,
-                conditionExpr.position
-              );
-    
+        const condition =
+            conditionExpr instanceof Nodes.ExpressionNode
+                ? conditionExpr
+                : new Nodes.ExpressionNode(
+                      conditionExpr,
+                      null,
+                      null,
+                      false,
+                      conditionExpr.position
+                  );
+
         this.expect(TokenType.ThenOp);
-    
+
         const consequent: Node[] = [];
-        while (![TokenType.ThinkOp, TokenType.StopOp, TokenType.EOF].includes(this.currentToken.type as number)) {
+        while (
+            ![TokenType.ThinkOp, TokenType.StopOp, TokenType.EOF].includes(
+                this.currentToken.type as number
+            )
+        ) {
             consequent.push(this.parseStatement());
         }
-    
+
         let alternative: Node[] | undefined;
-        if (this.currentToken.type as number === TokenType.ThinkOp) {
+        if ((this.currentToken.type as number) === TokenType.ThinkOp) {
             this.advance();
             alternative = [];
-            while (![TokenType.StopOp, TokenType.EOF].includes(this.currentToken.type as number)) {
+            while (
+                ![TokenType.StopOp, TokenType.EOF].includes(
+                    this.currentToken.type as number
+                )
+            ) {
                 alternative.push(this.parseStatement());
             }
         }
-    
+
         if ((this.currentToken.type as number) !== TokenType.StopOp) {
             throw new ParserError(
                 ParserErrorType.UnexpectedToken,
-                'Expected ⏹️ at end of if statement',
+                "Expected ⏹️ at end of if statement",
                 this.currentToken.position
             );
         }
         this.expect(TokenType.StopOp);
-    
-        return new Nodes.IfStatementNode(condition, consequent, alternative, position);
+
+        return new Nodes.IfStatementNode(
+            condition,
+            consequent,
+            alternative,
+            position
+        );
     }
 
     private parseLoopStatement(): Nodes.LoopStatementNode {
@@ -441,7 +486,7 @@ export class Parser {
         if (this.currentToken.type !== TokenType.Emojis) {
             throw new ParserError(
                 ParserErrorType.UnexpectedToken,
-                'Expected identifier',
+                "Expected identifier",
                 this.currentToken.position
             );
         }
@@ -455,19 +500,23 @@ export class Parser {
     }
 
     private isMathOperator(type: TokenType): boolean {
-        return type === TokenType.AdditionOp ||
-               type === TokenType.SubtractionOp ||
-               type === TokenType.MultiplicationOp ||
-               type === TokenType.DivisionOp;
+        return (
+            type === TokenType.AdditionOp ||
+            type === TokenType.SubtractionOp ||
+            type === TokenType.MultiplicationOp ||
+            type === TokenType.DivisionOp
+        );
     }
 
     private isComparisonOperator(type: TokenType): boolean {
-        return type === TokenType.EqualOp ||
-               type === TokenType.GreaterOp ||
-               type === TokenType.LesserOp ||
-               type === TokenType.NotOp ||
-               type === TokenType.IncreaseOp ||
-               type === TokenType.DecreaseOp ||
-               type === TokenType.NotEqualOp;
+        return (
+            type === TokenType.EqualOp ||
+            type === TokenType.GreaterOp ||
+            type === TokenType.LesserOp ||
+            type === TokenType.NotOp ||
+            type === TokenType.IncreaseOp ||
+            type === TokenType.DecreaseOp ||
+            type === TokenType.NotEqualOp
+        );
     }
 }

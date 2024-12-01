@@ -1,16 +1,20 @@
 import {
     BooleanEmojis,
     ControlFlowEmojis,
-    DataTypeEmojis,
+    ArrayEmojis,
     IOEmojis,
     MathOperatorEmojis,
     NumberEmojis,
     ProgrammingEmojis,
     RelationalEmojis,
+    StringEmojis,
 } from "../emojiConstants";
 
 // token types as specified in spec
 export enum TokenType {
+    // Variable Declaration
+    VariableDef,
+
     // Data Types
     NumberType, // 🔢
     StringType, // 📝
@@ -21,6 +25,8 @@ export enum TokenType {
     Number, // 0️⃣-9️⃣
     String, // 📋 text 📋
     Boolean, // ✅ ❌
+    ArrayStart,
+    ArrayEnd,
 
     // Math Operators
     AdditionOp, // ➕
@@ -196,7 +202,7 @@ export class Lexer {
         const pos = this.currentPosition();
 
         // Handle string literals
-        if (emoji === "📋") {
+        if (emoji === StringEmojis.QUOTE) {
             if (this.inString) {
                 this.inString = false;
                 const content = this.stringContent;
@@ -229,27 +235,15 @@ export class Lexer {
 
         // check for data types
         switch (emoji) {
-            case DataTypeEmojis.NUMBER:
+            case ArrayEmojis.START:
                 return {
-                    type: TokenType.NumberType,
+                    type: TokenType.ArrayStart,
                     literal: emoji,
                     position: pos,
                 };
-            case DataTypeEmojis.STRING:
+            case ArrayEmojis.END:
                 return {
-                    type: TokenType.StringType,
-                    literal: emoji,
-                    position: pos,
-                };
-            case DataTypeEmojis.BOOLEAN:
-                return {
-                    type: TokenType.BooleanType,
-                    literal: emoji,
-                    position: pos,
-                };
-            case DataTypeEmojis.ARRAY:
-                return {
-                    type: TokenType.ArrayType,
+                    type: TokenType.ArrayEnd,
                     literal: emoji,
                     position: pos,
                 };
@@ -367,7 +361,7 @@ export class Lexer {
         }
 
         // check for array indexing
-        if (emoji === "🔎") {
+        if (emoji === ProgrammingEmojis.INDEXING) {
             return {
                 type: TokenType.IndexingOp,
                 literal: emoji,
@@ -383,31 +377,31 @@ export class Lexer {
                     literal: emoji,
                     position: pos,
                 };
-            case "🫑": // Function call start
+            case ProgrammingEmojis.FUNCTION_CALL_START: // Function call start
                 return {
                     type: TokenType.FuncCallStart,
                     literal: emoji,
                     position: pos,
                 };
-            case "🍴": // Function call param/end
+            case ProgrammingEmojis.FUNCTION_CALL_END: // Function call param/end
                 return {
                     type: TokenType.FuncCallParam,
                     literal: emoji,
                     position: pos,
                 };
-            case "📈":
+            case RelationalEmojis.GREATER_OR_EQUAL:
                 return {
                     type: TokenType.IncreaseOp,
                     literal: emoji,
                     position: pos,
                 };
-            case "📉":
+            case RelationalEmojis.LESS_OR_EQUAL:
                 return {
                     type: TokenType.DecreaseOp,
                     literal: emoji,
                     position: pos,
                 };
-            case "🚫":
+            case RelationalEmojis.NOT:
                 return {
                     type: TokenType.NotEqualOp,
                     literal: emoji,
@@ -416,22 +410,17 @@ export class Lexer {
         }
 
         // check for barriers
-        if (emoji === "🚧") {
+        if (emoji === ControlFlowEmojis.PRECEDENCE) {
             return { type: TokenType.BarrierOp, literal: emoji, position: pos };
         }
 
         // check for construction operator
-        if (emoji === "👉") {
+        if (emoji === ProgrammingEmojis.POINTER) {
             return {
                 type: TokenType.ThenOp,
                 literal: emoji,
                 position: pos,
             };
-        }
-
-        // check for function definition
-        if (emoji === "📎") {
-            return { type: TokenType.FuncDef, literal: emoji, position: pos };
         }
 
         // check for io operations
@@ -444,6 +433,12 @@ export class Lexer {
 
         // check for variable operations
         switch (emoji) {
+            case ProgrammingEmojis.VAR_DECLARATION:
+                return {
+                    type: TokenType.VariableDef,
+                    literal: emoji,
+                    position: pos,
+                };
             case ProgrammingEmojis.ASSIGNMENT:
                 return {
                     type: TokenType.AssignmentOp,
@@ -493,10 +488,5 @@ export class Lexer {
     private isEmoji(str: string): boolean {
         const emojiRegex = /\p{Emoji}/u;
         return emojiRegex.test(str);
-    }
-
-    private isIdentifier(str: string): boolean {
-        // Allow regular text (letters, numbers, underscores) for identifiers
-        return /^[a-zA-Z0-9_]+$/.test(str);
     }
 }

@@ -1,4 +1,4 @@
-import { Position } from '../lexer/lexer';
+import { Position } from "../lexer/lexer";
 
 import type {
     IOEmoji,
@@ -233,7 +233,6 @@ export class IOOperationNode implements Types.IOOperationNode {
 
 export class IndexExpressionNode implements Types.IndexExpressionNode {
     constructor(
-        public expression: Types.IndexableNodes,
         public index: number,
         public position: Position
     ) {}

@@ -1,4 +1,4 @@
-import { Position } from '../lexer/lexer';
+import { Position } from "../lexer/lexer";
 
 import type {
     ControlFlowEmoji,
@@ -120,12 +120,12 @@ export type ExpressionCompatibleNodes =
     | NumberLiteralNode
     | StringLiteralNode
     | BooleanLiteralNode
-    | ArrayLiteralNode 
+    | ArrayLiteralNode
     | IndexExpressionNode
     | FunctionCallNode
     | IdentifierNode
     | ExpressionNode;
-    
+
 export interface ExpressionNode extends Node {
     left: ExpressionCompatibleNodes;
     operator: RelationalEmoji | MathOperatorEmoji | null;
@@ -162,12 +162,10 @@ export interface IOOperationNode extends Node {
 export type IndexableNodes =
     | FunctionCallNode
     | IdentifierNode
-    | IndexExpressionNode
     | ArrayLiteralNode
     | ExpressionNode;
 
 export interface IndexExpressionNode extends Node {
-    expression: IndexableNodes;
     index: number;
     position: Position;
 }

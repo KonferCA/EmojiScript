@@ -217,12 +217,7 @@ export class ASTVisitor implements NodeVisitor {
     }
 
     visitIndexExpression(node: Nodes.IndexExpressionNode): string {
-        return [
-            node.expression.accept(this),
-            "[",
-            node.index.toString(),
-            "]",
-        ].join("");
+        return ["[", node.index.toString(), "]"].join("");
     }
 
     visitAssignment(node: AssignmentNode): string {
@@ -322,9 +317,8 @@ ${this.getIndentation()}Consequent:\n${consequent}${
     }
     debugIndexExpression(node: Nodes.IndexExpressionNode): string {
         this.indent++;
-        const expression = node.expression.accept(this);
         this.indent--;
-        return `${this.getIndentation()}IndexExpression:\n${expression}\n${this.getIndentation()}  Index: ${node.index}`;
+        return `${this.getIndentation()}IndexExpression:\n${this.getIndentation()}  Index: ${node.index}`;
     }
 
     debugExpression(node: Nodes.ExpressionNode): string {

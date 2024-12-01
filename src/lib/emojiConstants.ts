@@ -1,9 +1,7 @@
 // Data Types
-export const DataTypeEmojis = {
-    BOOLEAN: "🏁" as const,
-    STRING: "📝" as const,
-    NUMBER: "🔢" as const,
-    ARRAY: "📦" as const,
+export const ArrayEmojis = {
+    START: "📦" as const,
+    END: "🎁" as const,
 } as const;
 
 // Boolean Values
@@ -64,10 +62,13 @@ export const ControlFlowEmojis = {
 // Programming
 export const ProgrammingEmojis = {
     FUNCTION_DEF: "📎" as const,
+    FUNCTION_CALL_START: "🫑" as const,
+    FUNCTION_CALL_END: "🍴" as const,
     POINTER: "👉" as const,
     INDEXING: "🔎" as const,
     ASSIGNMENT: "📥" as const,
     COMMA: "🌚" as const,
+    VAR_DECLARATION: "📝" as const,
 } as const;
 
 // IO
@@ -76,8 +77,7 @@ export const IOEmojis = {
 } as const;
 
 // Derive types from the constants
-export type DataTypeEmoji =
-    (typeof DataTypeEmojis)[keyof typeof DataTypeEmojis];
+export type DataTypeEmoji = (typeof ArrayEmojis)[keyof typeof ArrayEmojis];
 export type BooleanEmoji = (typeof BooleanEmojis)[keyof typeof BooleanEmojis];
 export type NumberEmoji = (typeof NumberEmojis)[keyof typeof NumberEmojis];
 export type StringEmoji = (typeof StringEmojis)[keyof typeof StringEmojis];
@@ -106,7 +106,7 @@ export type ProgrammingSymbolEmoji =
 // Utility type to get the category of an emoji
 export type EmojiCategory<T extends ProgrammingSymbolEmoji> =
     T extends DataTypeEmoji
-        ? "DataType"
+        ? "Array"
         : T extends BooleanEmoji
           ? "Boolean"
           : T extends NumberEmoji
@@ -130,7 +130,7 @@ export function getEmojiCategory(
     emoji: ProgrammingSymbolEmoji
 ): EmojiCategory<typeof emoji> {
     // Check which category the emoji belongs to and return the corresponding string
-    if (Object.values(DataTypeEmojis).includes(emoji as any)) return "DataType";
+    if (Object.values(ArrayEmojis).includes(emoji as any)) return "Array";
     if (Object.values(BooleanEmojis).includes(emoji as any)) return "Boolean";
     if (Object.values(NumberEmojis).includes(emoji as any)) return "Number";
     if (Object.values(MathOperatorEmojis).includes(emoji as any))
